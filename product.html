@@ -2,8 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Details | 4D'S World | Clothes, Shoes, Bags & Accessories</title>
+    <link rel="icon" type="image/png" href="/logoo.png">
+    <link rel="apple-touch-icon" href="/logoo.png">
+    <meta name="description" content="View product details at 4D'S World. Premium fashion boutique in Lagos, Nigeria.">
+    <meta property="og:title" content="Product Details | 4D'S World">
+    <meta property="og:type" content="product">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="canonical" href="https://4dsworld.com/product">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
@@ -35,7 +42,6 @@
             margin-bottom: 80px;
         }
 
-        /* Gallery Frame */
         .detail-gallery-wrap {
             position: relative;
         }
@@ -70,7 +76,6 @@
             z-index: 2;
         }
 
-        /* Detail content formatting */
         .detail-category {
             font-size: 0.85rem;
             color: var(--accent-gold);
@@ -123,13 +128,6 @@
             font-size: 2.2rem;
             font-weight: 800;
             color: var(--accent-gold);
-        }
-
-        .detail-pricenote {
-            font-size: 0.88rem;
-            margin-top: 6px;
-            color: var(--text-secondary);
-            font-weight: 500;
         }
 
         .option-group {
@@ -223,76 +221,32 @@
             margin-bottom: 40px;
         }
 
-        /* Wholesale discount grids */
-        .wholesale-calculator-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            padding: 24px;
-        }
-
-        .wholesale-calculator-card h3 {
-            font-family: var(--font-heading);
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            margin-bottom: 15px;
-            color: var(--accent-gold);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .wholesale-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9rem;
-        }
-
-        .wholesale-table th, .wholesale-table td {
-            padding: 10px 12px;
-            text-align: left;
-        }
-
-        .wholesale-table th {
-            color: var(--text-secondary);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            font-weight: 600;
-        }
-
-        .wholesale-table td {
-            border-bottom: 1px solid rgba(255,255,255,0.02);
-        }
-
-        .wholesale-table tr.highlight-tier td {
-            color: var(--success);
-            font-weight: 600;
+        @media (max-width: 768px) {
+            .product-detail-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            .detail-title { font-size: 1.8rem; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Header / Navigation -->
     <header>
         <div class="container nav-container">
-            <a href="index.html" class="logo">4D'S <span>WORLD</span></a>
-            
+<a href="/" class="logo"><img src="/logoo.png" alt="4D'S World" class="logo-img"></a>
             <nav class="nav-menu" id="nav-menu">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="shop.html" class="nav-link">Shop</a>
-                <a href="about.html" class="nav-link">About</a>
-                <a href="contact.html" class="nav-link">Contact</a>
+                <a href="/" class="nav-link">Home</a>
+                <a href="/shop" class="nav-link">Shop</a>
+                <a href="/about" class="nav-link">About</a>
+                <a href="/contact" class="nav-link">Contact</a>
             </nav>
 
             <div class="nav-actions">
-                <button class="mode-toggle" id="pricing-mode-toggle" title="Toggle Retail / Wholesale prices">
-                    <i class="fas fa-shopping-bag"></i> <span>Retail</span>
-                </button>
-
-                <a href="cart.html" class="nav-btn" title="View Cart">
+                <a href="/cart" class="nav-btn" title="View Cart">
                     <i class="fas fa-shopping-cart"></i>
                     <span class="cart-count" id="cart-count">0</span>
                 </a>
-
                 <div class="menu-toggle" id="menu-toggle">
                     <i class="fas fa-bars"></i>
                 </div>
@@ -300,22 +254,17 @@
         </div>
     </header>
 
-    <!-- Product Detail wrapper -->
     <main class="product-detail-page">
         <div class="container">
-            <!-- Breadcrumbs -->
             <div class="breadcrumb">
-                <a href="index.html">Home</a>
+                <a href="/">Home</a>
                 <i class="fas fa-chevron-right" style="font-size: 0.75rem;"></i>
-                <a href="shop.html">Shop</a>
+                <a href="/shop">Shop</a>
                 <i class="fas fa-chevron-right" style="font-size: 0.75rem;"></i>
                 <span id="breadcrumb-current" style="color: var(--accent-gold);">Product</span>
             </div>
 
-            <!-- Product Grid -->
             <div class="product-detail-grid">
-                
-                <!-- Left: Product Image -->
                 <div class="detail-gallery-wrap">
                     <div class="detail-img-main-wrap">
                         <div class="detail-badge-pos" id="product-detail-badge">NEW</div>
@@ -323,44 +272,32 @@
                     </div>
                 </div>
 
-                <!-- Right: Product details content -->
                 <div class="detail-content-wrap">
                     <span class="detail-category" id="product-detail-category">Category</span>
                     <h1 class="detail-title" id="product-detail-title">Loading Product...</h1>
                     
-                    <div class="detail-rating" id="product-detail-rating">
-                        <!-- Filled dynamically -->
-                    </div>
+                    <div class="detail-rating" id="product-detail-rating"></div>
 
-                    <!-- Price box -->
                     <div class="detail-price-box">
                         <div class="detail-price-row">
                             <span class="detail-price" id="product-detail-price">₦0</span>
                         </div>
-                        <p class="detail-pricenote" id="product-detail-pricenote">Loading pricing note...</p>
                     </div>
 
                     <p style="color: var(--text-secondary); margin-bottom: 30px;" id="product-detail-description">
                         Description loading...
                     </p>
 
-                    <!-- Sizes Selector -->
                     <div class="option-group">
                         <h4 class="option-title">Select Size</h4>
-                        <div class="option-pills-wrap" id="sizes-selector-wrap">
-                            <!-- Pill buttons populated dynamically -->
-                        </div>
+                        <div class="option-pills-wrap" id="sizes-selector-wrap"></div>
                     </div>
 
-                    <!-- Colors Selector -->
                     <div class="option-group">
                         <h4 class="option-title">Select Color</h4>
-                        <div class="option-pills-wrap" id="colors-selector-wrap">
-                            <!-- Pill buttons populated dynamically -->
-                        </div>
+                        <div class="option-pills-wrap" id="colors-selector-wrap"></div>
                     </div>
 
-                    <!-- Quantity Section -->
                     <div class="quantity-section">
                         <h4 class="option-title" style="margin-bottom: 0;">Quantity</h4>
                         <div class="quantity-controller">
@@ -373,48 +310,25 @@
                         </div>
                     </div>
 
-                    <!-- Actions -->
                     <div class="actions-wrap">
                         <button class="btn btn-secondary" id="btn-add-to-cart"><i class="fas fa-shopping-cart"></i> Add To Cart</button>
                         <button class="btn btn-primary" id="btn-buy-now"><i class="fas fa-bolt"></i> Buy It Now</button>
                     </div>
-
-                    <!-- Wholesale Table pricing -->
-                    <div class="wholesale-calculator-card">
-                        <h3><i class="fas fa-tags"></i> Wholesale Price Tiers</h3>
-                        <table class="wholesale-table" id="wholesale-tier-table">
-                            <thead>
-                                <tr>
-                                    <th>Quantity Purchased</th>
-                                    <th>Unit Price</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Loaded dynamically -->
-                            </tbody>
-                        </table>
-                    </div>
-
                 </div>
-
             </div>
 
-            <!-- Related Products Section -->
             <section class="section" style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 60px;">
                 <h2 class="section-title" style="text-align: left; font-size: 1.8rem; margin-bottom: 30px;">You May Also Like</h2>
-                <div class="product-grid" id="related-products-grid">
-                    <!-- Loaded dynamically -->
-                </div>
+                <div class="product-grid" id="related-products-grid"></div>
             </section>
 
         </div>
     </main>
 
-    <!-- Footer -->
     <footer>
         <div class="container footer-grid">
             <div class="footer-brand">
-                <a href="index.html" class="logo">4D'S <span>WORLD</span></a>
+<a href="/" class="logo"><img src="/logoo.png" alt="4D'S World" class="logo-img"></a>
                 <p>Nigeria's premium fashion distributor and dealer, supplying bags, accessories, shoes, and clothing to bulk wholesalers and retail buyers.</p>
                 <div class="social-links">
                     <a href="https://www.facebook.com/search/top?q=tessy%20collections" target="_blank" rel="noopener" class="social-btn" title="Tessy Collections on Facebook"><i class="fab fa-facebook-f"></i></a>
@@ -422,27 +336,24 @@
                     <a href="mailto:destinydomi@gmail.com" class="social-btn" title="Email Us"><i class="fas fa-envelope"></i></a>
                 </div>
             </div>
-            
             <div>
                 <h3 class="footer-title">Boutique</h3>
                 <ul class="footer-links">
-                    <li><a href="shop.html?category=clothes">Clothes Collection</a></li>
-                    <li><a href="shop.html?category=shoes">Shoes & Heels</a></li>
-                    <li><a href="shop.html?category=bags">Luxury Handbags</a></li>
-                    <li><a href="shop.html?category=accessories">Gold Jewelry & Watches</a></li>
+                    <li><a href="/shop?category=clothes">Clothes Collection</a></li>
+                    <li><a href="/shop?category=shoes">Shoes & Heels</a></li>
+                    <li><a href="/shop?category=bags">Luxury Handbags</a></li>
+                    <li><a href="/shop?category=accessories">Gold Jewelry & Watches</a></li>
                 </ul>
             </div>
-
             <div>
                 <h3 class="footer-title">About</h3>
                 <ul class="footer-links">
-                    <li><a href="about.html">Our Story</a></li>
-                    <li><a href="about.html#wholesale-info">Bulk Purchases</a></li>
-                    <li><a href="contact.html">Store Location</a></li>
-                    <li><a href="contact.html">Support Line</a></li>
+                    <li><a href="/about">Our Story</a></li>
+                    <li><a href="/about#wholesale-info">Bulk Purchases</a></li>
+                    <li><a href="/contact">Store Location</a></li>
+                    <li><a href="/contact">Support Line</a></li>
                 </ul>
             </div>
-
             <div>
                 <h3 class="footer-title">Quick Support</h3>
                 <ul class="footer-contact">
@@ -453,7 +364,6 @@
                 </ul>
             </div>
         </div>
-
         <div class="container footer-bottom">
             <p>&copy; 2026 4D'S World. All Rights Reserved. | Made with <span style="color:#e74c3c;">&#10084;</span> by <a href="https://bit.ly/HiveryTech" target="_blank" rel="noopener" style="color:var(--accent-gold);text-decoration:none;font-weight:600;">HiveryTech LTD</a></p>
             <div class="payment-providers">
@@ -465,7 +375,7 @@
         </div>
     </footer>
 
-    <!-- App Scripts -->
+
     <script src="js/products.js"></script>
     <script src="js/app.js"></script>
     <script src="js/product-detail.js"></script>

@@ -1,4 +1,8 @@
+.env
 __pycache__/
 *.pyc
-database.db
-.env
+.idea/
+.vscode/
+uploads/
+*firebase-adminsdk*.json
+*.log

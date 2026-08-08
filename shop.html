@@ -2,259 +2,86 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shop Catalog | 4D'S World | Clothes, Shoes, Bags & Accessories</title>
-    <meta name="description" content="Browse the full product catalog of 4D'S World. Filter by category, price, and toggle retail vs. wholesale rates to get the best prices in Nigeria.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Collection | 4D'S World | Premium Fashion Boutique</title>
+    <link rel="icon" type="image/png" href="/logoo.png">
+    <link rel="apple-touch-icon" href="/logoo.png">
+    <meta name="description" content="Browse our exclusive collection of luxury clothes, shoes, bags, and accessories. Premium quality fashion in Lagos, Nigeria.">
+    <meta name="keywords" content="fashion shop, buy clothes online, luxury shoes, designer bags, accessories lagos">
+
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
     <style>
-        .shop-page-wrap {
-            padding-top: calc(var(--nav-height) + 40px);
-            padding-bottom: 80px;
-        }
-
-        .shop-container {
-            display: flex;
-            gap: 40px;
-        }
-
-        /* Sidebar styles */
-        .shop-sidebar {
-            width: 280px;
-            flex-shrink: 0;
-            position: sticky;
-            top: calc(var(--nav-height) + 20px);
-            height: fit-content;
-            padding: 30px;
-        }
-
-        .sidebar-section {
-            margin-bottom: 30px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            padding-bottom: 25px;
-        }
-
-        .sidebar-section:last-child {
-            margin-bottom: 0;
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-
-        .sidebar-title {
-            font-family: var(--font-heading);
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            font-weight: 700;
-            letter-spacing: 1px;
-            margin-bottom: 20px;
-            color: var(--accent-gold);
-        }
-
-        .filter-list li {
-            margin-bottom: 12px;
-        }
-
-        .category-filter {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            text-align: left;
-            padding: 6px 0;
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: var(--transition-fast);
-        }
-
-        .category-filter:hover, .category-filter.active {
-            color: var(--accent-gold);
-            padding-left: 6px;
-        }
-
-        .price-inputs {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .price-input-field {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 10px;
-            width: 100%;
-            font-size: 0.85rem;
-            color: #fff;
-        }
-
-        /* Main Catalog area */
-        .shop-main {
-            flex-grow: 1;
-        }
-
-        .shop-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .search-box-wrap {
-            position: relative;
-            max-width: 400px;
-            width: 100%;
-        }
-
-        .search-box-input {
-            width: 100%;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            padding: 12px 20px 12px 45px;
-            color: #fff;
-            transition: var(--transition-smooth);
-        }
-
-        .search-box-input:focus {
-            border-color: var(--accent-gold);
-            box-shadow: 0 0 10px var(--accent-gold-glow);
-        }
-
-        .search-box-wrap i {
-            position: absolute;
-            left: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-secondary);
-        }
-
-        .sort-select-wrap select {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            padding: 12px 20px;
-            color: #fff;
-            cursor: pointer;
-            outline: none;
-        }
-
-        .sort-select-wrap select:focus {
-            border-color: var(--accent-gold);
-        }
-
-        .filter-mobile-btn {
-            display: none;
+        .shop-page-wrap { padding-top: calc(var(--nav-height) + 40px); padding-bottom: 80px; }
+        .shop-container { display: flex; gap: 40px; }
+        .shop-sidebar { width: 280px; flex-shrink: 0; position: sticky; top: calc(var(--nav-height) + 20px); height: fit-content; padding: 30px; }
+        .sidebar-section { margin-bottom: 30px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 25px; }
+        .sidebar-title { font-family: var(--font-heading); font-size: 1.1rem; text-transform: uppercase; font-weight: 700; margin-bottom: 20px; color: var(--accent-gold); }
+        .category-filter { display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: left; padding: 8px 0; font-size: 0.95rem; color: var(--text-secondary); cursor: pointer; transition: 0.3s; border: none; background: none; }
+        .category-filter:hover, .category-filter.active { color: var(--accent-gold); padding-left: 5px; }
+        .shop-main { flex-grow: 1; }
+        .shop-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; gap: 20px; flex-wrap: wrap; }
+        .search-box-wrap { position: relative; max-width: 400px; width: 100%; }
+        .search-box-input { width: 100%; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 20px 12px 45px; color: #fff; outline: none; }
+        .search-box-wrap i { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); }
+        @media (max-width: 992px) {
+            .shop-container { flex-direction: column; }
+            .shop-sidebar { width: 100%; position: static; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Header / Navigation -->
     <header>
         <div class="container nav-container">
-            <a href="index.html" class="logo">4D'S <span>WORLD</span></a>
-            
+<a href="/" class="logo"><img src="/logoo.png" alt="4D'S World" class="logo-img"></a>
             <nav class="nav-menu" id="nav-menu">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="shop.html" class="nav-link active">Shop</a>
-                <a href="about.html" class="nav-link">About</a>
-                <a href="contact.html" class="nav-link">Contact</a>
+                <a href="/" class="nav-link">Home</a>
+                <a href="/shop" class="nav-link active">Shop</a>
+                <a href="/about" class="nav-link">About</a>
+                <a href="/contact" class="nav-link">Contact</a>
             </nav>
-
             <div class="nav-actions">
-                <button class="mode-toggle" id="pricing-mode-toggle" title="Toggle Retail / Wholesale prices">
-                    <i class="fas fa-shopping-bag"></i> <span>Retail</span>
-                </button>
-
-                <a href="cart.html" class="nav-btn" title="View Cart">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-count" id="cart-count">0</span>
-                </a>
-
-                <div class="menu-toggle" id="menu-toggle">
-                    <i class="fas fa-bars"></i>
-                </div>
+                <a href="/cart" class="nav-btn"><i class="fas fa-shopping-cart"></i><span class="cart-count" id="cart-count">0</span></a>
+                <div class="menu-toggle" id="menu-toggle"><i class="fas fa-bars"></i></div>
             </div>
         </div>
     </header>
 
-    <!-- Shop Content Section -->
     <section class="shop-page-wrap">
         <div class="container">
             <div class="shop-container">
-                
-                <!-- Filter Sidebar -->
-                <aside class="shop-sidebar glass-panel" id="shop-sidebar">
-                    <div class="filter-mobile-btn" id="filter-mobile-btn">
-                        <i class="fas fa-filter"></i> Filters
-                    </div>
-
-                    <div class="shop-sidebar-content" id="shop-sidebar-content">
-                        <!-- Category section -->
-                        <div class="sidebar-section">
-                            <h3 class="sidebar-title">Categories</h3>
-                            <ul class="filter-list">
-                                <li><button class="category-filter active" data-category="all">All Boutique <i class="fas fa-chevron-right"></i></button></li>
-                                <li><button class="category-filter" data-category="clothes">Clothes <i class="fas fa-chevron-right"></i></button></li>
-                                <li><button class="category-filter" data-category="shoes">Shoes & Heels <i class="fas fa-chevron-right"></i></button></li>
-                                <li><button class="category-filter" data-category="bags">Bags & Handbags <i class="fas fa-chevron-right"></i></button></li>
-                                <li><button class="category-filter" data-category="accessories">Accessories <i class="fas fa-chevron-right"></i></button></li>
-                            </ul>
-                        </div>
-
-                        <!-- Price filter -->
-                        <div class="sidebar-section">
-                            <h3 class="sidebar-title">Price Range (₦)</h3>
-                            <div class="price-inputs">
-                                <input type="number" id="min-price" placeholder="Min" class="price-input-field">
-                                <span style="color: var(--text-muted);">to</span>
-                                <input type="number" id="max-price" placeholder="Max" class="price-input-field">
-                            </div>
-                        </div>
-
-                        <!-- Info banner on Wholesale -->
-                        <div class="sidebar-section" style="border-bottom: none; padding-bottom: 0;">
-                            <div class="glass-panel" style="padding: 15px; border-color: rgba(212, 168, 83, 0.3); background: rgba(212, 168, 83, 0.03);">
-                                <h4 style="font-family: var(--font-heading); color: var(--accent-gold); font-size: 0.95rem; margin-bottom: 8px; text-transform: uppercase;"><i class="fas fa-boxes"></i> Bulk Deals</h4>
-                                <p style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.4;">Switch the top header toggle to <strong>Wholesale</strong> to browse direct distributor rates across the shop.</p>
-                            </div>
-                        </div>
+                <aside class="shop-sidebar glass-panel">
+                    <div class="sidebar-section">
+                        <h3 class="sidebar-title">Categories</h3>
+                        <button class="category-filter active" data-category="all">All Collection</button>
+                        <button class="category-filter" data-category="clothes">Clothes</button>
+                        <button class="category-filter" data-category="shoes">Shoes</button>
+                        <button class="category-filter" data-category="bags">Bags</button>
+                        <button class="category-filter" data-category="accessories">Accessories</button>
                     </div>
                 </aside>
 
-                <!-- Shop Main Display -->
                 <main class="shop-main">
-                    <!-- Controls header -->
                     <div class="shop-controls">
-                        <!-- Search input box -->
                         <div class="search-box-wrap">
                             <i class="fas fa-search"></i>
-                            <input type="text" id="search-input" placeholder="Search clothes, heels, bags, watches..." class="search-box-input">
+                            <input type="text" id="search-input" placeholder="Search for items..." class="search-box-input">
                         </div>
-
-                        <!-- Sorting controls -->
-                        <div class="sort-select-wrap">
-                            <select id="sort-select">
-                                <option value="featured">Featured / Default</option>
-                                <option value="price-low">Price: Low to High</option>
-                                <option value="price-high">Price: High to Low</option>
-                                <option value="rating">Top Rated</option>
-                            </select>
-                        </div>
+                        <select id="sort-select" class="glass-panel" style="padding: 10px 15px; border-radius: 8px; color: #fff; outline: none; border: 1px solid var(--border-color);">
+                            <option value="featured">Featured</option>
+                            <option value="price-low">Price: Low to High</option>
+                            <option value="price-high">Price: High to Low</option>
+                        </select>
                     </div>
 
-                    <!-- Products Grid -->
                     <div class="product-grid" id="shop-product-grid">
-                        <!-- Dynamically filled with products.js & shop.js -->
+                        <!-- Products rendered here -->
                     </div>
                 </main>
-
             </div>
         </div>
     </section>
@@ -263,7 +90,7 @@
     <footer>
         <div class="container footer-grid">
             <div class="footer-brand">
-                <a href="index.html" class="logo">4D'S <span>WORLD</span></a>
+                <a href="/" class="logo"><img src="/logoo.png" alt="4D'S World" class="logo-img"></a>
                 <p>Nigeria's premium fashion distributor and dealer, supplying bags, accessories, shoes, and clothing to bulk wholesalers and retail buyers.</p>
                 <div class="social-links">
                     <a href="https://www.facebook.com/search/top?q=tessy%20collections" target="_blank" rel="noopener" class="social-btn" title="Tessy Collections on Facebook"><i class="fab fa-facebook-f"></i></a>
@@ -314,9 +141,10 @@
         </div>
     </footer>
 
-    <!-- App Scripts -->
     <script src="js/products.js"></script>
+    <script src="js/layout.js"></script>
     <script src="js/app.js"></script>
     <script src="js/shop.js"></script>
 </body>
 </html>
+

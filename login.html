@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Admin Login | 4D'S World</title>
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="theme-color" content="#0b1120">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23d4a853' width='100' height='100'/><text x='50' y='65' font-size='60' font-weight='bold' text-anchor='middle' fill='%230a0a0a' font-family='Arial'>4D</text></svg>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap">
+    <style>
+        :root {
+            --admin-bg: #0b1120;
+            --admin-bg-2: #0f172a;
+            --admin-card: #1a2332;
+            --admin-border: rgba(255,255,255,0.08);
+            --accent-gold: #d4a853;
+            --accent-gold-hover: #e8b94a;
+            --accent-gold-glow: rgba(212,168,83,0.25);
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --error: #ef4444;
+            --radius: 16px;
+            --shadow-lg: 0 20px 60px rgba(0,0,0,0.5);
+            --transition: 0.3s cubic-bezier(0.4,0,0.2,1);
+        }
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; }
+        body {
+            min-height: 100vh;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            color: var(--text-main);
+            background:
+                radial-gradient(circle at 20% 20%, rgba(212,168,83,0.12), transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(212,168,83,0.08), transparent 40%),
+                linear-gradient(135deg, #0b1120, #0f172a);
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+        }
+        .auth-card {
+            width: 100%; max-width: 420px;
+            background: rgba(26,35,50,0.7);
+            border: 1px solid var(--admin-border);
+            border-radius: 24px;
+            padding: 44px 36px;
+            text-align: center;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: var(--shadow-lg);
+            animation: authIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        @keyframes authIn { from { opacity:0; transform: translateY(24px) scale(0.96);} to {opacity:1; transform:none;} }
+        .auth-logo {
+            width: 76px; height: 76px; margin: 0 auto 18px;
+            border-radius: 22px;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-hover));
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.9rem;
+            color: #0f172a;
+            box-shadow: 0 10px 30px var(--accent-gold-glow);
+        }
+        .auth-card h2 {
+            font-family: 'Outfit', sans-serif; font-size: 1.5rem;
+            margin: 0 0 6px; letter-spacing: 0.5px;
+        }
+        .auth-card p { color: var(--text-muted); font-size: 0.9rem; margin: 0 0 26px; }
+        .form-input {
+            width: 100%; padding: 14px 16px;
+            background: rgba(11,17,32,0.7);
+            border: 1.5px solid var(--admin-border);
+            border-radius: 12px; color: #fff; outline: none;
+            font-size: 1rem; text-align: center; letter-spacing: 2px;
+            transition: var(--transition); margin-bottom: 18px;
+        }
+        .form-input:focus {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 0 4px var(--accent-gold-glow);
+        }
+        .form-input::placeholder { color: var(--text-dim); letter-spacing: 1px; }
+        .btn {
+            width: 100%; padding: 14px 20px; border-radius: 12px;
+            font-weight: 700; cursor: pointer; border: none;
+            font-size: 0.95rem; letter-spacing: 0.5px;
+            font-family: inherit;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-hover));
+            color: #0f172a; box-shadow: 0 6px 18px var(--accent-gold-glow);
+            transition: var(--transition);
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 26px var(--accent-gold-glow); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .auth-foot { margin-top: 22px; font-size: 0.8rem; color: var(--text-dim); }
+        .auth-foot a { color: var(--accent-gold); text-decoration: none; }
+        .auth-foot i { color: var(--accent-gold); }
+        .error-box {
+            display: none; padding: 12px 14px; margin-bottom: 16px;
+            background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.4);
+            border-radius: 10px; color: #fca5a5; font-size: 0.85rem;
+        }
+        .error-box.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+        .loading-spinner { display: none; }
+        .btn.loading .loading-spinner { display: inline-block; }
+        .btn.loading .btn-text { opacity: 0.7; }
+    </style>
+</head>
+<body>
+    <div class="auth-card">
+        <div class="auth-logo">4D</div>
+        <h2>Admin Login</h2>
+        <p>Secure access to the 4D'S World dashboard</p>
+        <div class="error-box" id="error-box"><i class="fas fa-exclamation-circle"></i> <span id="error-msg"></span></div>
+        <form id="admin-login-form" autocomplete="on">
+            <input type="password" id="admin-pass" class="form-input" placeholder="Security Password" required autocomplete="current-password">
+            <button type="submit" class="btn" id="login-btn">
+                <span class="btn-text">Access Dashboard</span>
+                <span class="loading-spinner"><i class="fas fa-circle-notch fa-spin"></i></span>
+            </button>
+        </form>
+        <div class="auth-foot"><i class="fas fa-shield-alt"></i> Protected area &middot; <a href="/">Back to Store</a></div>
+    </div>
+
+    <script src="js/admin-login.js"></script>
+</body>
+</html>

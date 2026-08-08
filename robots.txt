@@ -1,0 +1,13 @@
+# 4D'S World - Robots.txt
+# Keep admin & login pages completely out of search engines.
+
+User-agent: *
+Disallow: /admin-portal
+Disallow: /admin.html
+Disallow: /admin-login
+Disallow: /login
+Disallow: /login.html
+Disallow: /css/
+Disallow: /js/
+Disallow: /uploads/
+
