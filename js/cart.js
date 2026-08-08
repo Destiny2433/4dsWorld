@@ -12,10 +12,7 @@ function initCartPage() {
     const clearCartBtn = document.getElementById('btn-clear-cart');
     const checkoutBtn = document.getElementById('btn-proceed-checkout');
     
-    const DELIVERY_FEE = 2500;
-    const FREE_DELIVERY_THRESHOLD = 150000;
-
-    renderCart();
+renderCart();
 
     window.addEventListener('cartUpdated', renderCart);
 
@@ -54,8 +51,8 @@ function initCartPage() {
             `;
             if (clearCartBtn) clearCartBtn.style.display = 'none';
             if (checkoutBtn) checkoutBtn.style.display = 'none';
-            if (subtotalEl) subtotalEl.textContent = formatNaira(0);
-            if (deliveryEl) deliveryEl.textContent = formatNaira(0);
+if (subtotalEl) subtotalEl.textContent = formatNaira(0);
+            if (deliveryEl) deliveryEl.innerHTML = '<span style="color: var(--success); font-weight: 600;">FREE</span>';
             if (totalEl) totalEl.textContent = formatNaira(0);
             return;
         }
@@ -95,17 +92,12 @@ function initCartPage() {
 
 
         const cartSubtotal = CartManager.getCartTotal();
-        const activeDelivery = cartSubtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
-        const cartTotal = cartSubtotal + activeDelivery;
+        const cartTotal = cartSubtotal;
 
         if (subtotalEl) subtotalEl.textContent = formatNaira(cartSubtotal);
         
         if (deliveryEl) {
-            if (activeDelivery === 0) {
-                deliveryEl.innerHTML = '<span style="color: var(--success); font-weight: 600;">FREE</span>';
-            } else {
-                deliveryEl.textContent = formatNaira(activeDelivery);
-            }
+            deliveryEl.innerHTML = '<span style="color: var(--success); font-weight: 600;">FREE</span>';
         }
         
         if (totalEl) totalEl.textContent = formatNaira(cartTotal);

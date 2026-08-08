@@ -299,8 +299,8 @@ def create_order():
         else:
             subtotal += float(item.get('price', 0)) * int(item.get('quantity', 1))
 
-    # Standard shipping logic
-    delivery = 2500.0 if subtotal < 150000.0 else 0.0
+# No shipping fee - free delivery always
+    delivery = 0.0
     total = subtotal + delivery
     total_kobo = int(total * 100)
     order_ref = '4DS-' + os.urandom(4).hex().upper()

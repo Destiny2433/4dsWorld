@@ -49,10 +49,7 @@ function initCheckoutPage() {
     var totalEl = document.getElementById('checkout-total');
     var checkoutForm = document.getElementById('checkout-form');
     
-    var DELIVERY_FEE = 2500;
-    var FREE_DELIVERY_THRESHOLD = 150000;
-
-    var cart = CartManager.getCart();
+var cart = CartManager.getCart();
     if (cart.length === 0) {
         showToast('Your cart is empty! Redirecting to shop...', 'error');
         setTimeout(function() { window.location.href = '/shop'; }, 1500);
@@ -128,13 +125,12 @@ function initCheckoutPage() {
         }
         summaryItemsWrap.innerHTML = html;
 
-        var cartSubtotal = CartManager.getCartTotal();
-        var activeDelivery = cartSubtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
-        var cartTotal = cartSubtotal + activeDelivery;
+var cartSubtotal = CartManager.getCartTotal();
+        var cartTotal = cartSubtotal;
 
         if (subtotalEl) subtotalEl.textContent = formatNaira(cartSubtotal);
         if (deliveryEl) {
-            deliveryEl.innerHTML = activeDelivery === 0 ? '<span style="color:var(--success);font-weight:600;">FREE</span>' : formatNaira(activeDelivery);
+            deliveryEl.innerHTML = '<span style="color:var(--success);font-weight:600;">FREE</span>';
         }
         if (totalEl) totalEl.textContent = formatNaira(cartTotal);
     }
