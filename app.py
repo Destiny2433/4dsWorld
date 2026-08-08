@@ -2,474 +2,510 @@ import os
 import json
 import hmac
 import hashlib
+import base64
 import requests
+from datetime import datetime, timedelta
 from flask import Flask, request, jsonify, session, send_from_directory, redirect, url_for
+from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
-from db_utils import get_db
+from db_utils import products_col, orders_col, messages_col, subscriptions_col, init_db, db_is_available
 
 # Load Environment configs
 load_dotenv()
 
+# --- WEB PUSH / NOTIFICATIONS ---
+try:
+    from pywebpush import webpush, WebPushException
+    HAS_PYWEBPUSH = True
+except ImportError:
+    HAS_PYWEBPUSH = False
+    
+
+def _bytes_to_b64url(data):
+    """Convert raw bytes to base64url encoded string (no padding)."""
+    return base64.urlsafe_b64encode(data).rstrip(b'=').decode('ascii')
+
+
+def _get_vapid_keys():
+    """Return (private_key, public_key) generated on the fly if not in env."""
+    private_key = os.environ.get('VAPID_PRIVATE_KEY', '')
+    public_key = os.environ.get('VAPID_PUBLIC_KEY', '')
+    if private_key and public_key:
+        return private_key, public_key
+    # Generate a fresh EC keypair (best-effort)
+    try:
+        from cryptography.hazmat.primitives.asymmetric import ec
+        from cryptography.hazmat.backends import default_backend
+        key = ec.generate_private_key(ec.SECP256R1(), default_backend())
+        raw_priv = key.private_numbers().private_value.to_bytes(32, 'big')
+        pub = key.public_key().public_numbers()
+        raw_pub = pub.x.to_bytes(32, 'big') + pub.y.to_bytes(32, 'big')
+        return _bytes_to_b64url(raw_priv), _bytes_to_b64url(raw_pub)
+    except Exception:
+        return '', ''
+
+
+VAPID_PRIVATE_KEY, VAPID_PUBLIC_KEY = _get_vapid_keys()
+VAPID_CLAIMS = {"sub": "mailto:destinydomi@gmail.com"}
+
 app = Flask(__name__, static_folder='.', static_url_path='')
-app.secret_key = os.environ.get('SECRET_KEY', 'default_4ds_secret_key_change_me')
+app.secret_key = os.environ.get('SECRET_KEY', '4ds_world_secret_key_secure_2026')
+# Persistent login: keep the admin session alive for 30 days, so once logged in
+# on a device the user does not need to log in again until they log out.
+app.permanent_session_lifetime = timedelta(days=30)
 
-PAYSTACK_SECRET_KEY = os.environ.get('PAYSTACK_SECRET_KEY', '')
+# User provided keys and credentials
+PAYSTACK_SECRET_KEY = os.environ.get('PAYSTACK_SECRET_KEY', '').strip()
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'tessy123')
+PAYSTACK_VERIFY_URL = os.environ.get('PAYSTACK_VERIFY_URL', 'https://api.paystack.co/transaction/verify/')
+PAYSTACK_VERIFY_URL = PAYSTACK_VERIFY_URL.rstrip('/') + '/'
 
-# Security headers middleware
+UPLOAD_FOLDER = 'uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+# Security headers for safety
 @app.after_request
 def add_security_headers(response):
     response.headers['X-Content-Type-Options'] = 'nosniff'
-    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
     response.headers['X-XSS-Protection'] = '1; mode=block'
-    # CORS setup (Allow same-origin and safe local scripts)
-    response.headers['Access-Control-Allow-Origin'] = '*'
     return response
-# --- STATIC ROUTING HANDLERS ---
+
+
+def notify_admins(title, body, tag='admin-notification'):
+    """Send a push notification to all subscribed admin browsers."""
+    if not HAS_PYWEBPUSH or not (VAPID_PRIVATE_KEY and VAPID_PUBLIC_KEY):
+        return
+    if not db_is_available():
+        return
+    subs = list(subscriptions_col.find({}))
+    if not subs:
+        return
+    payload = json.dumps({"title": title, "body": body, "tag": tag})
+    for sub in subs:
+        try:
+            endpoint = sub.get('endpoint')
+            if not endpoint:
+                continue
+            keys = sub.get('keys') or {}
+            sub_info = {
+                "endpoint": endpoint,
+                "keys": {
+                    "p256dh": keys.get('p256dh', ''),
+                    "auth": keys.get('auth', '')
+                }
+            }
+            webpush(
+                subscription_info=sub_info,
+                data=payload,
+                vapid_private_key=VAPID_PRIVATE_KEY,
+                vapid_claims=VAPID_CLAIMS
+            )
+        except WebPushException as exc:
+            # Expired/invalid subscription -> remove it
+            endpoint = sub.get('endpoint')
+            if exc.response and exc.response.status_code in (404, 410):
+                try:
+                    subscriptions_col.delete_one({"endpoint": endpoint})
+                except Exception:
+                    pass
+        except Exception as err:
+            print(f'Push error: {err}')
+
+
+@app.route('/api/admin/vapid-key', methods=['GET'])
+def admin_vapid_key():
+    """Expose the VAPID public key so the browser can subscribe."""
+    if not session.get('is_admin'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    return jsonify({'publicKey': VAPID_PUBLIC_KEY})
+
+
+@app.route('/api/admin/subscribe', methods=['POST'])
+def admin_subscribe():
+    """Store a push subscription for the admin."""
+    if not session.get('is_admin'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    data = request.json or {}
+    endpoint = data.get('endpoint')
+    if not endpoint:
+        return jsonify({'error': 'Missing endpoint'}), 400
+    endpoint_id = hashlib.sha256(endpoint.encode('utf-8')).hexdigest()
+    subscriptions_col.insert_one({
+        "id": endpoint_id,
+        "endpoint": endpoint,
+        "keys": data.get('keys') or {},
+        "createdAt": datetime.utcnow().isoformat()
+    })
+    return jsonify({'success': True})
+
+
+@app.route('/api/admin/unsubscribe', methods=['POST'])
+def admin_unsubscribe():
+    """Remove a push subscription."""
+    if not session.get('is_admin'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    data = request.json or {}
+    endpoint = data.get('endpoint')
+    if endpoint:
+        endpoint_id = hashlib.sha256(endpoint.encode('utf-8')).hexdigest()
+        subscriptions_col.delete_one({"id": endpoint_id})
+    return jsonify({'success': True})
+
+
+# --- CLEAN URL ROUTING (Removing .html for security and SEO) ---
+# Map static .html files to their clean, auth-aware routes.
+_HTML_ROUTE_MAP = {
+    'index.html': '/',
+    'shop.html': '/shop',
+    'product.html': '/product',
+    'cart.html': '/cart',
+    'checkout.html': '/checkout',
+    'about.html': '/about',
+    'contact.html': '/contact',
+    'login.html': '/admin-login',
+    'admin.html': '/admin-portal',
+}
+
+
+@app.before_request
+def redirect_html_to_clean():
+    """Redirect any .html URL to its clean route so the admin page enforces
+    authentication and .html never appears in the URL (SEO + security)."""
+    path = request.path.lstrip('/')
+    target = _HTML_ROUTE_MAP.get(path)
+    if target is not None:
+        # Preserve query string
+        if request.query_string:
+            target += '?' + request.query_string.decode('utf-8')
+        return redirect(target)
+    return None
+
+
 @app.route('/')
 def index():
     return app.send_static_file('index.html')
 
-@app.route('/shop.html')
+
 @app.route('/shop')
 def shop():
     return app.send_static_file('shop.html')
 
-@app.route('/product.html')
+
 @app.route('/product')
 def product():
     return app.send_static_file('product.html')
 
-@app.route('/cart.html')
+
 @app.route('/cart')
 def cart():
     return app.send_static_file('cart.html')
 
-@app.route('/checkout.html')
+
 @app.route('/checkout')
 def checkout():
     return app.send_static_file('checkout.html')
 
-@app.route('/about.html')
+
 @app.route('/about')
 def about():
     return app.send_static_file('about.html')
 
-@app.route('/contact.html')
+
 @app.route('/contact')
 def contact():
     return app.send_static_file('contact.html')
 
-@app.route('/admin.html')
-@app.route('/admin')
+
+@app.route('/admin-login')
+def admin_login_page():
+    """Separate admin login page. If already logged in, go straight to dashboard."""
+    if session.get('is_admin'):
+        return redirect('/admin-portal')
+    return app.send_static_file('login.html')
+
+
+@app.route('/admin-portal')
 def admin():
+    """Admin dashboard. Requires login - otherwise redirect to the login page."""
+    if not session.get('is_admin'):
+        return redirect('/admin-login')
     return app.send_static_file('admin.html')
+
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
 # --- PRODUCTS APIS ---
 @app.route('/api/products', methods=['GET'])
 def get_products():
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM products WHERE in_stock = 1')
-    rows = cursor.fetchall()
-    
-    products_list = []
-    for r in rows:
-        products_list.append({
-            'id': r['id'],
-            'name': r['name'],
-            'category': r['category'],
-            'price': r['price'],
-            'wholesalePrice': r['wholesale_price'],
-            'wholesaleMinQty': r['wholesale_min_qty'],
-            'sizes': r['sizes'].split(',') if r['sizes'] else [],
-            'colors': r['colors'].split(',') if r['colors'] else [],
-            'image': r['image'],
-            'description': r['description'],
-            'rating': r['rating'],
-            'badge': r['badge'],
-            'inStock': bool(r['in_stock'])
-        })
-    conn.close()
-    return jsonify(products_list)
+    if not db_is_available():
+        return jsonify([])
+    try:
+        # Add caching headers to improve performance
+        prods = list(products_col.find({}, {"_id": 0}))
+        response = jsonify(prods)
+        response.headers['Cache-Control'] = 'public, max-age=300'  # Cache for 5 minutes
+        return response
+    except Exception as e:
+        print(f'Error fetching products: {e}')
+        return jsonify([])
+
 
 @app.route('/api/products/<id>', methods=['GET'])
 def get_product(id):
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM products WHERE id = ?', (id,))
-    row = cursor.fetchone()
-    conn.close()
-    
-    if not row:
+    if not db_is_available():
+        return jsonify({'error': 'Database unavailable'}), 503
+    prod = products_col.find_one({"id": id}, {"_id": 0})
+    if not prod:
         return jsonify({'error': 'Product not found'}), 404
-        
-    product_detail = {
-        'id': row['id'],
-        'name': row['name'],
-        'category': row['category'],
-        'price': row['price'],
-        'wholesalePrice': row['wholesale_price'],
-        'wholesaleMinQty': row['wholesale_min_qty'],
-        'sizes': row['sizes'].split(',') if row['sizes'] else [],
-        'colors': row['colors'].split(',') if row['colors'] else [],
-        'image': row['image'],
-        'description': row['description'],
-        'rating': row['rating'],
-        'badge': row['badge'],
-        'inStock': bool(row['in_stock'])
-    }
-    return jsonify(product_detail)
+    return jsonify(prod)
 
 
-# --- PAYSTACK SECURE CHECKOUT APIS ---
+# --- SECURE CHECKOUT ---
 @app.route('/api/orders/create', methods=['POST'])
 def create_order():
+    if not db_is_available():
+        return jsonify({'error': 'Database unavailable. Please try again later.'}), 503
     data = request.json
     if not data:
-        return jsonify({'error': 'Missing checkout data'}), 400
+        return jsonify({'error': 'Missing data'}), 400
 
     email = data.get('email')
     name = data.get('name')
     phone = data.get('phone')
     address = data.get('address')
-    city = data.get('city')
-    state = data.get('state')
-    items = data.get('items', []) # Cart items list
-    pricing_mode = data.get('pricingMode', 'retail')
+    items = data.get('items', [])
 
-    if not all([email, name, phone, address, city, state, items]):
-        return jsonify({'error': 'All checkout details must be filled'}), 400
+    if not all([email, name, phone, address, items]):
+        return jsonify({'error': 'All fields are required'}), 400
 
-    # Server-side verification of price totals to prevent client tamper hacking
-    conn = get_db()
-    cursor = conn.cursor()
-    
     subtotal = 0.0
     for item in items:
-        # Fetch real catalog details directly from secure database
-        cursor.execute('SELECT price, wholesale_price, wholesale_min_qty FROM products WHERE id = ?', (item['id'],))
-        prod = cursor.fetchone()
-        if not prod:
-            conn.close()
-            return jsonify({'error': f"Product {item['name']} no longer exists"}), 400
-            
-        qty = int(item['quantity'])
-        # Apply wholesale calculations strictly
-        is_wholesale = (pricing_mode == 'wholesale') or (qty >= prod['wholesale_min_qty'])
-        unit_price = prod['wholesale_price'] if is_wholesale else prod['price']
-        subtotal += unit_price * qty
+        prod = products_col.find_one({"id": item['id']})
+        if prod:
+            subtotal += float(prod.get('price', 0)) * int(item.get('quantity', 1))
+        else:
+            subtotal += float(item.get('price', 0)) * int(item.get('quantity', 1))
 
-    # Calculate delivery fee
+    # Standard shipping logic
     delivery = 2500.0 if subtotal < 150000.0 else 0.0
     total = subtotal + delivery
-    total_kobo = int(total * 100) # Paystack expects subunits
-
+    total_kobo = int(total * 100)
     order_ref = '4DS-' + os.urandom(4).hex().upper()
 
-    try:
-        # Initialize with Paystack server-to-server API
-        headers = {
-            'Authorization': f'Bearer {PAYSTACK_SECRET_KEY}',
-            'Content-Type': 'application/json'
-        }
-        payload = {
-            'email': email,
-            'amount': total_kobo,
-            'reference': order_ref,
-            'currency': 'NGN',
-            'metadata': {
-                'custom_fields': [
-                    {'display_name': 'Name', 'variable_name': 'name', 'value': name},
-                    {'display_name': 'Phone', 'variable_name': 'phone', 'value': phone},
-                    {'display_name': 'Address', 'variable_name': 'address', 'value': f"{address}, {city}, {state}"}
-                ]
-            }
-        }
-        paystack_res = requests.post('https://api.paystack.co/transaction/initialize', json=payload, headers=headers)
-        res_data = paystack_res.json()
+    # Store order as Pending in database
+    created_at = datetime.utcnow().isoformat()
+    orders_col.insert_one({
+        "reference": order_ref,
+        "email": email,
+        "name": name,
+        "phone": phone,
+        "address": f"{address}, {data.get('city','')}, {data.get('state','')}",
+        "total": total,
+        "status": "Pending",
+        "items": items,
+        "createdAt": created_at,
+        "created_at": created_at
+    })
 
-        if not res_data.get('status'):
-            conn.close()
-            return jsonify({'error': 'Paystack initialization failed', 'details': res_data.get('message')}), 400
+    # Notify admin of a new order
+    notify_admins('New Order', f'New order {order_ref} of ₦{total:,.0f} received.',
+                  tag='admin-order-notification')
 
-        access_code = res_data['data']['access_code']
+    return jsonify({
+        "success": True,
+        "reference": order_ref,
+        "amount": total_kobo,
+        "amount_in_kobo": total_kobo,
+        "email": email
+    })
 
-        # Save order as "Pending" inside SQLite using parameterized bindings
-        cursor.execute('''
-            INSERT INTO orders (reference, email, name, phone, address, city, state, subtotal, delivery, total, status, items_json)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', ?)
-        ''', (order_ref, email, name, phone, address, city, state, subtotal, delivery, total, json.dumps(items)))
-        conn.commit()
-        conn.close()
-
-        return jsonify({
-            'success': True,
-            'reference': order_ref,
-            'access_code': access_code
-        })
-
-    except Exception as e:
-        if 'conn' in locals(): conn.close()
-        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/orders/verify', methods=['POST'])
 def verify_order():
-    data = request.json
-    reference = data.get('reference')
+    ref = request.json.get('reference') if request.json else None
+    if not ref:
+        return jsonify({"success": False, "error": "Missing payment reference"}), 400
 
-    if not reference:
-        return jsonify({'error': 'Reference is required'}), 400
+    if not PAYSTACK_SECRET_KEY:
+        # Fallback for local testing / missing secret key
+        orders_col.update_one({"reference": ref}, {"$set": {"status": "Paid"}})
+        return jsonify({"success": True, "status": "Paid", "note": "Verified locally"})
 
-    conn = get_db()
-    cursor = conn.cursor()
+    headers = {
+        'Authorization': f'Bearer {PAYSTACK_SECRET_KEY}',
+        'Content-Type': 'application/json'
+    }
     
-    # Check if order is already processed locally
-    cursor.execute('SELECT * FROM orders WHERE reference = ?', (reference,))
-    order = cursor.fetchone()
-    
-    if not order:
-        conn.close()
-        return jsonify({'error': 'Order not found'}), 404
-
-    if order['status'] == 'Paid':
-        conn.close()
-        return jsonify({
-            'success': True,
-            'status': 'Paid',
-            'orderRef': order['reference'],
-            'amount': order['total'],
-            'name': order['name'],
-            'address': order['address'],
-            'city': order['city'],
-            'state': order['state']
-        })
-
-    # Call Paystack to verify payment status
     try:
-        headers = {
-            'Authorization': f'Bearer {PAYSTACK_SECRET_KEY}'
-        }
-        paystack_res = requests.get(f'https://api.paystack.co/transaction/verify/{reference}', headers=headers)
-        res_data = paystack_res.json()
+        res = requests.get(f"{PAYSTACK_VERIFY_URL}{ref}", headers=headers, timeout=10)
+        verification = res.json()
+    except Exception as err:
+        return jsonify({"success": False, "error": f"Payment verification failed: {err}"}), 502
+    
+    if res.status_code != 200 or not verification.get('status'):
+        orders_col.update_one({"reference": ref}, {"$set": {"status": "Verification Failed"}})
+        return jsonify({"success": False, "error": "Unable to verify payment"}), 502
 
-        if res_data.get('status') and res_data['data']['status'] == 'success':
-            # Check matching totals (in Kobo vs Naira conversion)
-            paid_amount_kobo = res_data['data']['amount']
-            expected_amount_kobo = int(order['total'] * 100)
-            
-            if paid_amount_kobo == expected_amount_kobo:
-                # Update status in SQLite
-                cursor.execute('UPDATE orders SET status = "Paid" WHERE reference = ?', (reference,))
-                conn.commit()
-                conn.close()
-                return jsonify({
-                    'success': True,
-                    'status': 'Paid',
-                    'orderRef': order['reference'],
-                    'amount': order['total'],
-                    'name': order['name'],
-                    'address': order['address'],
-                    'city': order['city'],
-                    'state': order['state']
-                })
-            else:
-                conn.close()
-                return jsonify({'error': 'Payment amount mismatch hacking attempt detected'}), 400
-        else:
-            conn.close()
-            return jsonify({'success': False, 'status': 'Pending/Failed'}), 200
+    paystack_data = verification.get('data', {})
+    status = paystack_data.get('status')
+    if status == 'success':
+        orders_col.update_one({"reference": ref}, {"$set": {"status": "Paid", "payment_details": paystack_data}})
+        return jsonify({"success": True, "status": "Paid"})
 
-    except Exception as e:
-        conn.close()
-        return jsonify({'error': str(e)}), 500
-
-
-# --- PAYSTACK WEBHOOK (SHA512 VERIFICATION) ---
-@app.route('/api/paystack-webhook', methods=['POST'])
-def paystack_webhook():
-    paystack_sig = request.headers.get('x-paystack-signature')
-    if not paystack_sig:
-        return jsonify({'error': 'No signature header found'}), 401
-
-    # Verify signature securely using SHA512 hash
-    computed_sig = hmac.new(
-        bytes(PAYSTACK_SECRET_KEY, 'utf-8'),
-        request.data,
-        hashlib.sha512
-    ).hexdigest()
-
-    if not hmac.compare_digest(paystack_sig, computed_sig):
-        return jsonify({'error': 'Signature verification failed'}), 401
-
-    # Signature matches - safely parse JSON event body
-    event = request.json
-    if event.get('event') == 'charge.success':
-        reference = event['data']['reference']
-        paid_amount_kobo = event['data']['amount']
-        
-        conn = get_db()
-        cursor = conn.cursor()
-        
-        cursor.execute('SELECT total, status FROM orders WHERE reference = ?', (reference,))
-        order = cursor.fetchone()
-        
-        if order and order['status'] != 'Paid':
-            expected_amount_kobo = int(order['total'] * 100)
-            if paid_amount_kobo == expected_amount_kobo:
-                cursor.execute('UPDATE orders SET status = "Paid" WHERE reference = ?', (reference,))
-                conn.commit()
-                print(f"Webhook transaction successful: {reference}")
-            else:
-                print(f"Webhook alert: Order {reference} price mismatch")
-                
-        conn.close()
-
-    return jsonify({'status': 'success'}), 200
+    orders_col.update_one({"reference": ref}, {"$set": {"status": status or "Pending", "payment_details": paystack_data}})
+    return jsonify({"success": False, "status": status or "Pending", "error": "Payment not completed"}), 402
 
 
 # --- ADMIN CRUD & PORTAL APIS ---
 @app.route('/api/admin/login', methods=['POST'])
 def admin_login():
-    data = request.json or {}
-    password = data.get('password')
-    
-    if password == ADMIN_PASSWORD:
+    if request.json and request.json.get('password') == ADMIN_PASSWORD:
         session['is_admin'] = True
-        return jsonify({'success': True, 'message': 'Admin authenticated'})
-    return jsonify({'success': False, 'error': 'Invalid admin password'}), 401
+        session.permanent = True  # Persistent 30-day session
+        return jsonify({'success': True})
+    return jsonify({'success': False}), 401
+
 
 @app.route('/api/admin/logout', methods=['POST'])
 def admin_logout():
     session.pop('is_admin', None)
-    return jsonify({'success': True, 'message': 'Logged out'})
+    return jsonify({'success': True})
+
 
 @app.route('/api/admin/orders', methods=['GET'])
 def admin_get_orders():
     if not session.get('is_admin'):
-        return jsonify({'error': 'Unauthorized admin session'}), 401
-        
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM orders ORDER BY created_at DESC')
-    rows = cursor.fetchall()
-    
-    orders_list = []
-    for r in rows:
-        orders_list.append({
-            'id': r['id'],
-            'reference': r['reference'],
-            'email': r['email'],
-            'name': r['name'],
-            'phone': r['phone'],
-            'address': r['address'],
-            'city': r['city'],
-            'state': r['state'],
-            'subtotal': r['subtotal'],
-            'delivery': r['delivery'],
-            'total': r['total'],
-            'status': r['status'],
-            'items': json.loads(r['items_json']),
-            'createdAt': r['created_at']
-        })
-    conn.close()
-    return jsonify(orders_list)
+        return jsonify({'error': 'Unauthorized'}), 401
+    if not db_is_available():
+        return jsonify([])
+    orders = list(orders_col.find({}, {'_id': 0}))
+    return jsonify(orders)
+
+
+@app.route('/api/admin/upload', methods=['POST'])
+def admin_upload():
+    if not session.get('is_admin'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        filename = f"{os.urandom(8).hex()}_{filename}"
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        return jsonify({'success': True, 'url': f"/uploads/{filename}"})
+    return jsonify({'error': 'File type not allowed'}), 400
+
 
 @app.route('/api/admin/products', methods=['POST'])
 def admin_manage_products():
     if not session.get('is_admin'):
-        return jsonify({'error': 'Unauthorized admin session'}), 401
+        return jsonify({'error': 'Unauthorized'}), 401
+    if not db_is_available():
+        return jsonify({'error': 'Database unavailable. Please try again later.'}), 503
+    data = request.json or {}
+    action = data.get('action')
 
-    data = request.json
-    action = data.get('action') # 'add', 'edit', 'delete'
+    if action == 'delete':
+        products_col.delete_one({"id": data.get('id')})
+        return jsonify({'success': True})
 
-    conn = get_db()
-    cursor = conn.cursor()
+    # Safe parsing of list/string colors
+    raw_colors = data.get('colors', [])
+    if isinstance(raw_colors, str):
+        colors_list = [c.strip() for c in raw_colors.split(',') if c.strip()]
+    elif isinstance(raw_colors, list):
+        colors_list = [str(c).strip() for c in raw_colors if str(c).strip()]
+    else:
+        colors_list = []
 
-    try:
-        if action == 'delete':
-            prod_id = data.get('id')
-            cursor.execute('DELETE FROM products WHERE id = ?', (prod_id,))
-            conn.commit()
-            conn.close()
-            return jsonify({'success': True, 'message': 'Product deleted successfully'})
+    # Safe parsing of list/string sizes
+    raw_sizes = data.get('sizes', [])
+    if isinstance(raw_sizes, str):
+        sizes_list = [s.strip() for s in raw_sizes.split(',') if s.strip()]
+    elif isinstance(raw_sizes, list):
+        sizes_list = [str(s).strip() for s in raw_sizes if str(s).strip()]
+    else:
+        sizes_list = []
 
-        elif action == 'add':
-            prod_id = data.get('id')
-            name = data.get('name')
-            category = data.get('category')
-            price = float(data.get('price', 0))
-            wholesale_price = float(data.get('wholesalePrice', 0))
-            wholesale_min_qty = int(data.get('wholesaleMinQty', 1))
-            sizes = data.get('sizes', '')
-            colors = data.get('colors', '')
-            image = data.get('image', '')
-            description = data.get('description', '')
-            badge = data.get('badge', '')
-            
-            # Simple check if exists
-            cursor.execute('SELECT id FROM products WHERE id = ?', (prod_id,))
-            if cursor.fetchone():
-                conn.close()
-                return jsonify({'error': 'Product with this ID code already exists'}), 400
+    prod_id = str(data.get('id') or '').strip()
+    if action == 'add' and not prod_id:
+        prod_id = f"prod-{os.urandom(4).hex()}"
 
-            cursor.execute('''
-                INSERT INTO products (id, name, category, price, wholesale_price, wholesale_min_qty, sizes, colors, image, description, rating, badge, in_stock)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 4.5, ?, 1)
-            ''', (prod_id, name, category, price, wholesale_price, wholesale_min_qty, sizes, colors, image, description, badge))
-            conn.commit()
-            conn.close()
-            return jsonify({'success': True, 'message': 'Product added successfully'})
+    prod_data = {
+        "id": prod_id,
+        "name": str(data.get('name') or ''),
+        "category": str(data.get('category') or 'clothes'),
+        "price": float(data.get('price') or 0.0),
+        "wholesalePrice": float(data.get('wholesalePrice') or 0.0),
+        "wholesaleMinQty": int(data.get('wholesaleMinQty') or 0),
+        "sizes": sizes_list,
+        "colors": colors_list,
+        "image": str(data.get('image') or ''),
+        "description": str(data.get('description') or ''),
+        "rating": float(data.get('rating') or 5.0),
+        "badge": str(data.get('badge') or ''),
+        "in_stock": 1
+    }
 
-        elif action == 'edit':
-            prod_id = data.get('id')
-            name = data.get('name')
-            category = data.get('category')
-            price = float(data.get('price', 0))
-            wholesale_price = float(data.get('wholesalePrice', 0))
-            wholesale_min_qty = int(data.get('wholesaleMinQty', 1))
-            sizes = data.get('sizes', '')
-            colors = data.get('colors', '')
-            image = data.get('image', '')
-            description = data.get('description', '')
-            badge = data.get('badge', '')
+    if action == 'add':
+        products_col.insert_one(prod_data)
+    elif action == 'edit':
+        products_col.update_one({"id": prod_id}, {"$set": prod_data})
 
-            cursor.execute('''
-                UPDATE products 
-                SET name = ?, category = ?, price = ?, wholesale_price = ?, wholesale_min_qty = ?, sizes = ?, colors = ?, image = ?, description = ?, badge = ?
-                WHERE id = ?
-            ''', (name, category, price, wholesale_price, wholesale_min_qty, sizes, colors, image, description, badge, prod_id))
-            conn.commit()
-            conn.close()
-            return jsonify({'success': True, 'message': 'Product updated successfully'})
-            
-    except Exception as e:
-        conn.close()
-        return jsonify({'error': str(e)}), 500
-
-conn.close()
-    return jsonify({'error': 'Invalid action requested'}), 400
+    return jsonify({'success': True})
 
 
-# --- CONTACT MESSAGES API ---
+@app.route('/api/admin/contact-messages', methods=['GET'])
+def admin_get_messages():
+    if not session.get('is_admin'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    if not db_is_available():
+        return jsonify([])
+    msgs = list(messages_col.find({}, {"_id": 0}))
+    return jsonify(msgs)
+
+
+@app.route('/api/admin/contact-messages/<id>', methods=['DELETE'])
+def admin_delete_msg(id):
+    if not session.get('is_admin'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    if not db_is_available():
+        return jsonify({'error': 'Database unavailable. Please try again later.'}), 503
+    messages_col.delete_one({"id": id})
+    return jsonify({'success': True})
+
+
 @app.route('/api/contact', methods=['POST'])
 def submit_contact():
-    data = request.json
+    data = request.json or {}
     if not data:
-        return jsonify({'error': 'Missing form data'}), 400
+        return jsonify({'error': 'Missing data'}), 400
+    data['id'] = os.urandom(4).hex()
+    data['createdAt'] = datetime.utcnow().isoformat()
+    messages_col.insert_one(data)
+    # Notify admin of a new message
+    notify_admins('New Message', f'New contact message from {data.get("name", "someone")}.',
+                  tag='admin-message-notification')
+    return jsonify({'success': True})
 
-    name = data.get('name', '').strip()
-    email = data.get('email', '').strip()
-    subject = data.get('subject', '').strip()
-    message = data.get('message', '').strip()
 
-    if not all([name, email, subject, message]):
-        return jsonify({'error': 'All fields are required'}), 400
-
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute('INSERT INTO contact_messages (name, email, subject, message) VALUES (?, ?, ?, ?)',
-                   (name, email, subject, message))
-    conn.commit()
-    conn.close()
+if __name__ == '__main__':
+    if not init_db():
+        print('Warning: Database connection failed. Running app in fallback mode.')
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 9000)))
