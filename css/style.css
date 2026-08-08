@@ -260,6 +260,7 @@ header.scrolled {
 .logo-img {
     height: 46px;
     width: auto;
+    max-width: 100%;
     display: block;
     object-fit: contain;
     transition: transform var(--transition-fast);

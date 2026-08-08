@@ -74,6 +74,16 @@ var cart = CartManager.getCart();
                 return;
             }
 
+// Get selected delivery method
+            var deliveryInput = document.querySelector('input[name="delivery"]:checked');
+            var deliveryMethod = deliveryInput ? deliveryInput.value : 'standard';
+
+            var submitBtn = checkoutForm.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Processing...';
+            }
+
             var payload = {
                 email: email,
                 name: fullName,
@@ -82,6 +92,7 @@ var cart = CartManager.getCart();
                 city: city,
                 state: state,
                 items: cart,
+                deliveryMethod: deliveryMethod,
                 pricingMode: 'retail'
             };
 
@@ -94,6 +105,10 @@ var cart = CartManager.getCart();
                 var data = await res.json();
 
                 if (!data.success) {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fas fa-lock"></i> Pay Securely with Paystack';
+                    }
                     showToast(data.error || 'Failed to initialize order', 'error');
                     return;
                 }
@@ -133,6 +148,32 @@ var cartSubtotal = CartManager.getCartTotal();
             deliveryEl.innerHTML = '<span style="color:var(--success);font-weight:600;">FREE</span>';
         }
         if (totalEl) totalEl.textContent = formatNaira(cartTotal);
+
+        // Show selected delivery method in summary
+        var deliveryMethodEl = document.getElementById('checkout-delivery-method');
+        if (deliveryMethodEl) {
+            var selected = document.querySelector('input[name="delivery"]:checked');
+            var label = 'Standard Delivery';
+            if (selected) {
+                if (selected.value === 'express') label = 'Express Delivery';
+                if (selected.value === 'pickup') label = 'Store Pickup';
+            }
+            deliveryMethodEl.textContent = label;
+        }
+        // Update on radio change
+        var radios = document.querySelectorAll('input[name="delivery"]');
+        for (var ri = 0; ri < radios.length; ri++) {
+            radios[ri].addEventListener('change', function() {
+                var dl = document.getElementById('checkout-delivery-method');
+                if (dl) {
+                    var v = this.value;
+                    var lbl = 'Standard Delivery';
+                    if (v === 'express') lbl = 'Express Delivery';
+                    if (v === 'pickup') lbl = 'Store Pickup';
+                    dl.textContent = lbl;
+                }
+            });
+        }
     }
 }
 

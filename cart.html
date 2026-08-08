@@ -12,12 +12,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
-    <style>
+<style>
         .cart-page-wrap { padding-top: calc(var(--nav-height) + 40px); padding-bottom: 80px; }
+        .cart-page-header { text-align: center; padding: 30px 0 40px; }
+        .cart-page-header h1 { font-family: var(--font-heading); font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; margin-bottom: 10px; letter-spacing: -1px; }
+        .cart-page-header h1 span { background: linear-gradient(135deg, #f0c96a 0%, #d4a853 40%, #f5d88a 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
+        .cart-page-header p { color: var(--text-secondary); }
         .cart-grid { display: grid; grid-template-columns: 1.8fr 1fr; gap: 40px; align-items: flex-start; }
         .cart-items-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 15px; }
         .cart-items-header h1 { font-family: var(--font-heading); font-size: 2rem; font-weight: 700; }
-        .cart-summary-card { padding: 30px; position: sticky; top: calc(var(--nav-height) + 20px); }
+        .cart-summary-card { padding: 30px; position: sticky; top: calc(var(--nav-height) + 20px); background: linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); }
         .summary-title { font-family: var(--font-heading); font-size: 1.3rem; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; margin-bottom: 24px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 15px; color: var(--accent-gold); }
         .summary-row { display: flex; justify-content: space-between; margin-bottom: 16px; font-size: 0.95rem; color: var(--text-secondary); }
         .summary-row.total { border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 20px; margin-top: 20px; font-size: 1.25rem; color: #fff; font-weight: 700; }
@@ -42,14 +46,18 @@
         </div>
     </header>
 
-    <section class="cart-page-wrap">
+<section class="cart-page-wrap">
         <div class="container">
+            <div class="cart-page-header">
+                <h1>Your <span>Shopping Cart</span></h1>
+                <p>Review your items before proceeding to checkout.</p>
+            </div>
             <div class="cart-grid">
                 
-                <div class="cart-left-col">
+<div class="cart-left-col">
                     <div class="cart-items-header">
-                        <h1>Shopping Cart</h1>
-                        <button class="btn btn-secondary" id="btn-clear-cart" style="padding: 8px 16px; font-size: 0.8rem;"><i class="fas fa-trash-alt"></i> Clear Cart</button>
+                        <h2 style="font-family: var(--font-heading); font-size: 1.5rem;">Cart Items</h2>
+                        <button class="btn btn-secondary" id="btn-clear-cart" style="padding: 8px 16px; font-size: 0.8rem; color: var(--error); border-color: rgba(230,57,70,0.4);"><i class="fas fa-trash-alt"></i> Clear Cart</button>
                     </div>
                     <div id="cart-items-container"></div>
                 </div>

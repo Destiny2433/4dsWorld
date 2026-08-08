@@ -392,17 +392,39 @@ function showDashboard() {
         productsTableBody.innerHTML = html || '<tr><td colspan="5"><div class="empty-state"><i class="fas fa-inbox"></i><p>No products found</p></div></td></tr>';
     }
 
+function orderThumbHtml(o) {
+        // Build small stacked thumbnails from order items
+        var items = o.items || [];
+        if (!items.length) return '<img src="https://via.placeholder.com/60x60?text=Item" alt="" style="width:42px;height:42px;border-radius:8px;object-fit:cover;border:1px solid var(--admin-border);">';
+        var html = '';
+        for (var i = 0; i < items.length && i < 3; i++) {
+            var img = items[i].image || 'https://via.placeholder.com/60x60?text=Item';
+            html += '<img src="' + img + '" alt="' + (items[i].name || '') + '" title="' + (items[i].name || '') + '" style="width:42px;height:42px;border-radius:8px;object-fit:cover;border:1px solid var(--admin-border);margin-right:4px;">';
+        }
+        if (items.length > 3) {
+            html += '<span style="font-size:0.75rem;color:var(--text-dim);">+' + (items.length - 3) + '</span>';
+        }
+        return html;
+    }
+
+    function orderBadgeClass(status) {
+        var s = (status || '').toLowerCase();
+        if (s === 'paid' || s === 'delivered' || s === 'shipped') return 'badge-paid';
+        return 'badge-pending';
+    }
+
     function renderOrders(orders) {
         var isMobileView = window.innerWidth <= 768;
         if (isMobileView) {
             var cardHtml = '';
             for (var i = 0; i < orders.length; i++) {
                 var o = orders[i];
-                var badgeClass = o.status.toLowerCase() === 'paid' ? 'badge-paid' : 'badge-pending';
+                var badgeClass = orderBadgeClass(o.status);
+                var phone = o.phone || '';
                 cardHtml +=
                     '<div class="mobile-card">' +
                         '<div class="mobile-card-head">' +
-                            '<i class="fas fa-shopping-bag" style="font-size:1.4rem;color:var(--accent-gold);"></i>' +
+                            '<div style="display:flex;gap:6px;flex-wrap:wrap;">' + orderThumbHtml(o) + '</div>' +
                             '<div class="mobile-card-title">' +
                                 '<div class="prod-name"><code>' + o.reference + '</code></div>' +
                                 '<small>' + o.name + ' &middot; ' + o.email + '</small>' +
@@ -411,28 +433,90 @@ function showDashboard() {
                         '<div class="mobile-card-body">' +
                             '<div><span>Total</span><strong>' + formatNaira(o.total) + '</strong></div>' +
                             '<div><span>Status</span><span class="badge ' + badgeClass + '">' + o.status + '</span></div>' +
+                            '<div><span>Phone</span><strong>' + (phone || 'N/A') + '</strong></div>' +
                             '<div><span>Date</span><strong>' + new Date(o.createdAt).toLocaleDateString() + '</strong></div>' +
+                        '</div>' +
+                        '<div class="mobile-card-actions">' +
+                            '<select class="form-input" style="flex:1;padding:7px 10px;font-size:0.8rem;" onchange="updateOrderStatus(\'' + o.reference + '\', this.value)">' +
+                                '<option value="Pending"' + (o.status === 'Pending' ? ' selected' : '') + '>Pending</option>' +
+                                '<option value="Paid"' + (o.status === 'Paid' ? ' selected' : '') + '>Paid</option>' +
+                                '<option value="Shipped"' + (o.status === 'Shipped' ? ' selected' : '') + '>Shipped</option>' +
+                                '<option value="Delivered"' + (o.status === 'Delivered' ? ' selected' : '') + '>Delivered</option>' +
+                                '<option value="Cancelled"' + (o.status === 'Cancelled' ? ' selected' : '') + '>Cancelled</option>' +
+                            '</select>' +
+                            (phone ? '<a href="tel:' + phone + '" class="btn btn-secondary btn-sm"><i class="fas fa-phone"></i> Call</a>' : '') +
+                            '<button class="btn btn-danger btn-sm" onclick="deleteOrder(\'' + o.reference + '\')"><i class="fas fa-trash"></i></button>' +
                         '</div>' +
                     '</div>';
             }
-            ordersTableBody.innerHTML = cardHtml || '<tr><td colspan="5"><div class="empty-state"><i class="fas fa-inbox"></i><p>No orders</p></div></td></tr>';
+            ordersTableBody.innerHTML = cardHtml || '<tr><td colspan="6"><div class="empty-state"><i class="fas fa-inbox"></i><p>No orders</p></div></td></tr>';
             return;
         }
 
         var html = '';
         for (var j = 0; j < orders.length; j++) {
             var od = orders[j];
-            var bClass = od.status.toLowerCase() === 'paid' ? 'badge-paid' : 'badge-pending';
+            var bClass = orderBadgeClass(od.status);
+            var phone = od.phone || '';
             html += '<tr>' +
+                '<td><div style="display:flex;gap:6px;align-items:center;">' + orderThumbHtml(od) + '</div></td>' +
                 '<td><code>' + od.reference + '</code></td>' +
-                '<td><div style="font-weight:600;">' + od.name + '</div><small style="color:var(--text-dim);">' + od.email + '</small></td>' +
+                '<td><div style="font-weight:600;">' + od.name + '</div><small style="color:var(--text-dim);">' + od.email + '</small><div style="color:var(--text-dim);font-size:0.8rem;"><i class="fas fa-phone"></i> ' + (phone || 'N/A') + '</div></td>' +
                 '<td>' + formatNaira(od.total) + '</td>' +
                 '<td><span class="badge ' + bClass + '">' + od.status + '</span></td>' +
                 '<td>' + new Date(od.createdAt).toLocaleDateString() + '</td>' +
+                '<td>' +
+                    '<select class="form-input" style="padding:6px 8px;font-size:0.78rem;width:auto;" onchange="updateOrderStatus(\'' + od.reference + '\', this.value)">' +
+                        '<option value="Pending"' + (od.status === 'Pending' ? ' selected' : '') + '>Pending</option>' +
+                        '<option value="Paid"' + (od.status === 'Paid' ? ' selected' : '') + '>Paid</option>' +
+                        '<option value="Shipped"' + (od.status === 'Shipped' ? ' selected' : '') + '>Shipped</option>' +
+                        '<option value="Delivered"' + (od.status === 'Delivered' ? ' selected' : '') + '>Delivered</option>' +
+                        '<option value="Cancelled"' + (od.status === 'Cancelled' ? ' selected' : '') + '>Cancelled</option>' +
+                    '</select> ' +
+                    (phone ? '<a href="tel:' + phone + '" class="btn btn-secondary btn-sm" title="Call ' + phone + '"><i class="fas fa-phone"></i></a> ' : '') +
+                    '<button class="btn btn-danger btn-sm" onclick="deleteOrder(\'' + od.reference + '\')" title="Delete Order"><i class="fas fa-trash"></i></button>' +
+                '</td>' +
             '</tr>';
         }
-        ordersTableBody.innerHTML = html || '<tr><td colspan="5"><div class="empty-state"><i class="fas fa-inbox"></i><p>No orders</p></div></td></tr>';
+        ordersTableBody.innerHTML = html || '<tr><td colspan="7"><div class="empty-state"><i class="fas fa-inbox"></i><p>No orders</p></div></td></tr>';
     }
+
+    window.updateOrderStatus = async function(reference, status) {
+        try {
+            var res = await fetch('/api/admin/orders/status', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ reference: reference, status: status })
+            });
+            if (res.ok) {
+                showNotification('Order Updated', 'Status set to ' + status, 'success');
+                fetchOrders();
+            } else {
+                showNotification('Error', 'Failed to update status', 'error');
+            }
+        } catch (e) {
+            showNotification('Error', 'Failed to update status', 'error');
+        }
+    };
+
+    window.deleteOrder = async function(reference) {
+        if (!confirm('Are you sure you want to delete order ' + reference + '?')) return;
+        try {
+            var res = await fetch('/api/admin/orders/delete', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ reference: reference })
+            });
+            if (res.ok) {
+                showNotification('Deleted', 'Order removed', 'info');
+                fetchOrders();
+            } else {
+                showNotification('Error', 'Failed to delete order', 'error');
+            }
+        } catch (e) {
+            showNotification('Error', 'Failed to delete order', 'error');
+        }
+    };
 
     function renderMessages(messages) {
         var isMobileView = window.innerWidth <= 768;
@@ -626,12 +710,36 @@ function showDashboard() {
         showNotification('Deleted', 'Message removed', 'info');
     };
 
-    // --- NOTIFICATION SYSTEM ---
+// --- NOTIFICATION SYSTEM ---
     requestNotificationPermission();
     registerServiceWorker();
     setupWebPushSubscription();
     setupNotificationToggle();
     setupNotificationPolling();
+    setupTestPush();
+
+    function setupTestPush() {
+        var btn = document.getElementById('btn-test-push');
+        if (!btn) return;
+        btn.addEventListener('click', async function() {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Sending...';
+            try {
+                var res = await fetch('/api/admin/test-push', { method: 'POST' });
+                var data = await res.json();
+                if (data.success) {
+                    showNotification('Test Push Sent', 'A test notification has been triggered.', 'success');
+                } else {
+                    showNotification('Error', data.error || 'Could not send test push.', 'error');
+                }
+            } catch (err) {
+                showNotification('Error', 'Could not send test push.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-bell"></i> Send Test Push';
+            }
+        });
+    }
     
     async function requestNotificationPermission() {
         if ('Notification' in window && Notification.permission === 'default') {

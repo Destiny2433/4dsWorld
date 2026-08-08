@@ -19,19 +19,34 @@ try:
     HAS_PYWEBPUSH = True
 except ImportError:
     HAS_PYWEBPUSH = False
-    
+
 
 def _bytes_to_b64url(data):
     """Convert raw bytes to base64url encoded string (no padding)."""
     return base64.urlsafe_b64encode(data).rstrip(b'=').decode('ascii')
 
 
+VAPID_KEYS_FILE = '.vapid_keys.json'
+
+
 def _get_vapid_keys():
-    """Return (private_key, public_key) generated on the fly if not in env."""
+    """Return (private_key, public_key) persisted to disk so they stay stable
+    across restarts. If not present, generate and save them."""
     private_key = os.environ.get('VAPID_PRIVATE_KEY', '')
     public_key = os.environ.get('VAPID_PUBLIC_KEY', '')
     if private_key and public_key:
         return private_key, public_key
+
+    # Try to load persisted keys from disk
+    try:
+        if os.path.exists(VAPID_KEYS_FILE):
+            with open(VAPID_KEYS_FILE, 'r') as f:
+                data = json.load(f)
+                if data.get('private_key') and data.get('public_key'):
+                    return data['private_key'], data['public_key']
+    except Exception:
+        pass
+
     # Generate a fresh EC keypair (best-effort)
     try:
         from cryptography.hazmat.primitives.asymmetric import ec
@@ -40,7 +55,15 @@ def _get_vapid_keys():
         raw_priv = key.private_numbers().private_value.to_bytes(32, 'big')
         pub = key.public_key().public_numbers()
         raw_pub = pub.x.to_bytes(32, 'big') + pub.y.to_bytes(32, 'big')
-        return _bytes_to_b64url(raw_priv), _bytes_to_b64url(raw_pub)
+        priv_b64 = _bytes_to_b64url(raw_priv)
+        pub_b64 = _bytes_to_b64url(raw_pub)
+        # Persist so they don't change on restart (otherwise subscriptions break)
+        try:
+            with open(VAPID_KEYS_FILE, 'w') as f:
+                json.dump({'private_key': priv_b64, 'public_key': pub_b64}, f)
+        except Exception:
+            pass
+        return priv_b64, pub_b64
     except Exception:
         return '', ''
 
@@ -82,15 +105,19 @@ def add_security_headers(response):
 
 
 def notify_admins(title, body, tag='admin-notification'):
-    """Send a push notification to all subscribed admin browsers."""
+    """Send a push notification to all subscribed admin browsers/devices."""
     if not HAS_PYWEBPUSH or not (VAPID_PRIVATE_KEY and VAPID_PUBLIC_KEY):
+        print('Push skipped: pywebpush or VAPID keys unavailable.')
         return
     if not db_is_available():
+        print('Push skipped: DB unavailable.')
         return
     subs = list(subscriptions_col.find({}))
     if not subs:
+        print('Push skipped: no subscriptions.')
         return
     payload = json.dumps({"title": title, "body": body, "tag": tag})
+    sent = 0
     for sub in subs:
         try:
             endpoint = sub.get('endpoint')
@@ -110,6 +137,7 @@ def notify_admins(title, body, tag='admin-notification'):
                 vapid_private_key=VAPID_PRIVATE_KEY,
                 vapid_claims=VAPID_CLAIMS
             )
+            sent += 1
         except WebPushException as exc:
             # Expired/invalid subscription -> remove it
             endpoint = sub.get('endpoint')
@@ -118,8 +146,11 @@ def notify_admins(title, body, tag='admin-notification'):
                     subscriptions_col.delete_one({"endpoint": endpoint})
                 except Exception:
                     pass
+            else:
+                print(f'WebPush error: {exc}')
         except Exception as err:
             print(f'Push error: {err}')
+    print(f'Push sent to {sent} subscriber(s).')
 
 
 @app.route('/api/admin/vapid-key', methods=['GET'])
@@ -160,6 +191,16 @@ def admin_unsubscribe():
         endpoint_id = hashlib.sha256(endpoint.encode('utf-8')).hexdigest()
         subscriptions_col.delete_one({"id": endpoint_id})
     return jsonify({'success': True})
+
+
+@app.route('/api/admin/test-push', methods=['POST'])
+def admin_test_push():
+    """Send a test push notification to verify delivery works."""
+    if not session.get('is_admin'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    notify_admins('4D\'S World Test', 'This is a test push notification. It works! 🎉',
+                  tag='admin-test-notification')
+    return jsonify({'success': True, 'message': 'Test push triggered'})
 
 
 # --- CLEAN URL ROUTING (Removing .html for security and SEO) ---
@@ -299,9 +340,10 @@ def create_order():
         else:
             subtotal += float(item.get('price', 0)) * int(item.get('quantity', 1))
 
-# No shipping fee - free delivery always
-    delivery = 0.0
-    total = subtotal + delivery
+    # Delivery options - all FREE (no delivery fee charged)
+    delivery_method = str(data.get('deliveryMethod') or 'standard')
+    delivery_fee = 0.0
+    total = subtotal + delivery_fee
     total_kobo = int(total * 100)
     order_ref = '4DS-' + os.urandom(4).hex().upper()
 
@@ -315,13 +357,15 @@ def create_order():
         "address": f"{address}, {data.get('city','')}, {data.get('state','')}",
         "total": total,
         "status": "Pending",
+        "deliveryMethod": delivery_method,
+        "deliveryFee": delivery_fee,
         "items": items,
         "createdAt": created_at,
         "created_at": created_at
     })
 
     # Notify admin of a new order
-    notify_admins('New Order', f'New order {order_ref} of ₦{total:,.0f} received.',
+    notify_admins('🔔 New Order', f'New order {order_ref} of ₦{total:,.0f} received.',
                   tag='admin-order-notification')
 
     return jsonify({
@@ -348,13 +392,13 @@ def verify_order():
         'Authorization': f'Bearer {PAYSTACK_SECRET_KEY}',
         'Content-Type': 'application/json'
     }
-    
+
     try:
         res = requests.get(f"{PAYSTACK_VERIFY_URL}{ref}", headers=headers, timeout=10)
         verification = res.json()
     except Exception as err:
         return jsonify({"success": False, "error": f"Payment verification failed: {err}"}), 502
-    
+
     if res.status_code != 200 or not verification.get('status'):
         orders_col.update_one({"reference": ref}, {"$set": {"status": "Verification Failed"}})
         return jsonify({"success": False, "error": "Unable to verify payment"}), 502
@@ -395,6 +439,37 @@ def admin_get_orders():
     return jsonify(orders)
 
 
+@app.route('/api/admin/orders/status', methods=['POST'])
+def admin_update_order_status():
+    """Update an order's status (e.g. Pending -> Paid -> Shipped -> Delivered)."""
+    if not session.get('is_admin'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    if not db_is_available():
+        return jsonify({'error': 'Database unavailable'}), 503
+    data = request.json or {}
+    reference = data.get('reference')
+    status = data.get('status')
+    if not reference or not status:
+        return jsonify({'error': 'reference and status are required'}), 400
+    orders_col.update_one({"reference": reference}, {"$set": {"status": status}})
+    return jsonify({'success': True})
+
+
+@app.route('/api/admin/orders/delete', methods=['POST'])
+def admin_delete_order():
+    """Delete an order by reference."""
+    if not session.get('is_admin'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    if not db_is_available():
+        return jsonify({'error': 'Database unavailable'}), 503
+    data = request.json or {}
+    reference = data.get('reference')
+    if not reference:
+        return jsonify({'error': 'reference is required'}), 400
+    orders_col.delete_one({"reference": reference})
+    return jsonify({'success': True})
+
+
 @app.route('/api/admin/upload', methods=['POST'])
 def admin_upload():
     if not session.get('is_admin'):
@@ -424,6 +499,16 @@ def admin_manage_products():
     if action == 'delete':
         products_col.delete_one({"id": data.get('id')})
         return jsonify({'success': True})
+
+    # Toggle stock availability
+    if action == 'toggle_stock':
+        prod_id = data.get('id')
+        prod = products_col.find_one({"id": prod_id})
+        if not prod:
+            return jsonify({'error': 'Product not found'}), 404
+        new_stock = 0 if prod.get('in_stock', 1) else 1
+        products_col.update_one({"id": prod_id}, {"$set": {"in_stock": new_stock}})
+        return jsonify({'success': True, 'in_stock': new_stock})
 
     # Safe parsing of list/string colors
     raw_colors = data.get('colors', [])
@@ -500,7 +585,7 @@ def submit_contact():
     data['createdAt'] = datetime.utcnow().isoformat()
     messages_col.insert_one(data)
     # Notify admin of a new message
-    notify_admins('New Message', f'New contact message from {data.get("name", "someone")}.',
+    notify_admins('✉️ New Message', f'New contact message from {data.get("name", "someone")}.',
                   tag='admin-message-notification')
     return jsonify({'success': True})
 

@@ -14,19 +14,42 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
-    <style>
+<style>
         .shop-page-wrap { padding-top: calc(var(--nav-height) + 40px); padding-bottom: 80px; }
+        .shop-page-header {
+            text-align: center;
+            padding: 30px 0 40px;
+            position: relative;
+        }
+        .shop-page-header h1 {
+            font-family: var(--font-heading);
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+        .shop-page-header h1 span {
+            background: linear-gradient(135deg, #f0c96a 0%, #d4a853 40%, #f5d88a 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+        .shop-page-header p { color: var(--text-secondary); max-width: 520px; margin: 0 auto; }
         .shop-container { display: flex; gap: 40px; }
-        .shop-sidebar { width: 280px; flex-shrink: 0; position: sticky; top: calc(var(--nav-height) + 20px); height: fit-content; padding: 30px; }
+        .shop-sidebar { width: 280px; flex-shrink: 0; position: sticky; top: calc(var(--nav-height) + 20px); height: fit-content; padding: 30px; background: linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); }
         .sidebar-section { margin-bottom: 30px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 25px; }
-        .sidebar-title { font-family: var(--font-heading); font-size: 1.1rem; text-transform: uppercase; font-weight: 700; margin-bottom: 20px; color: var(--accent-gold); }
-        .category-filter { display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: left; padding: 8px 0; font-size: 0.95rem; color: var(--text-secondary); cursor: pointer; transition: 0.3s; border: none; background: none; }
-        .category-filter:hover, .category-filter.active { color: var(--accent-gold); padding-left: 5px; }
+        .sidebar-title { font-family: var(--font-heading); font-size: 1.1rem; text-transform: uppercase; font-weight: 700; margin-bottom: 20px; color: var(--accent-gold); display: flex; align-items: center; gap: 8px; }
+        .category-filter { display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: left; padding: 12px 14px; font-size: 0.95rem; color: var(--text-secondary); cursor: pointer; transition: 0.3s; border: none; background: none; border-radius: 10px; margin-bottom: 4px; }
+        .category-filter:hover, .category-filter.active { color: var(--accent-gold); padding-left: 18px; background: rgba(212,168,83,0.08); }
+        .category-filter.active { font-weight: 600; }
         .shop-main { flex-grow: 1; }
         .shop-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; gap: 20px; flex-wrap: wrap; }
         .search-box-wrap { position: relative; max-width: 400px; width: 100%; }
-        .search-box-input { width: 100%; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 20px 12px 45px; color: #fff; outline: none; }
+        .search-box-input { width: 100%; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px 20px 14px 46px; color: #fff; outline: none; transition: var(--transition-fast); }
+        .search-box-input:focus { border-color: var(--accent-gold); box-shadow: 0 0 0 4px var(--accent-gold-glow); }
         .search-box-wrap i { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); }
+        #sort-select { padding: 12px 15px; border-radius: 12px; background: var(--bg-secondary); }
         @media (max-width: 992px) {
             .shop-container { flex-direction: column; }
             .shop-sidebar { width: 100%; position: static; }
@@ -51,8 +74,12 @@
         </div>
     </header>
 
-    <section class="shop-page-wrap">
+<section class="shop-page-wrap">
         <div class="container">
+            <div class="shop-page-header">
+                <h1>Shop Our <span>Collection</span></h1>
+                <p>Discover premium fashion crafted with luxury fabrics and materials.</p>
+            </div>
             <div class="shop-container">
                 <aside class="shop-sidebar glass-panel">
                     <div class="sidebar-section">

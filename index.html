@@ -2,199 +2,572 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>4D'S World | Premium Clothes, Shoes, Bags & Accessories in Nigeria</title>
     <link rel="icon" type="image/png" href="/logoo.png">
     <link rel="apple-touch-icon" href="/logoo.png">
     <meta name="description" content="Welcome to 4D'S World - Nigeria's premier retail and wholesale supplier of clothes, shoes, luxury bags, and accessories. Buy in bulk and save big.">
+    <meta property="og:title" content="4D'S World | Premium Fashion Boutique">
+    <meta property="og:description" content="Nigeria's premier retail and wholesale fashion destination. Clothes, shoes, bags & accessories.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="/logoo.png">
+    <meta name="twitter:card" content="summary_large_image">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
     <style>
-        /* Homepage Specific Hero Styles */
+        /* ===== HERO SECTION (Premium Redesign) ===== */
         .hero-section {
-            height: 90vh;
-            background: linear-gradient(135deg, rgba(10, 10, 10, 0.95), rgba(30, 20, 5, 0.85)), url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1600&auto=format&fit=crop&q=80') no-repeat center center/cover;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             position: relative;
-            padding-top: var(--nav-height);
+            overflow: hidden;
+            padding: calc(var(--nav-height) + 60px) 0 80px;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(212,168,83,0.18) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(212,168,83,0.12) 0%, transparent 45%),
+                linear-gradient(160deg, #0a0a0a 0%, #14100a 50%, #0a0a0a 100%);
         }
-
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -20%;
+            width: 70%;
+            height: 140%;
+            background: radial-gradient(circle, rgba(212,168,83,0.08) 0%, transparent 70%);
+            transform: rotate(15deg);
+            pointer-events: none;
+            animation: heroFloat 12s ease-in-out infinite;
+        }
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            right: -15%;
+            width: 60%;
+            height: 120%;
+            background: radial-gradient(circle, rgba(46,196,182,0.05) 0%, transparent 70%);
+            transform: rotate(-10deg);
+            pointer-events: none;
+        }
+        @keyframes heroFloat {
+            0%, 100% { transform: rotate(15deg) translateY(0); }
+            50% { transform: rotate(17deg) translateY(-30px); }
+        }
         .hero-content {
-            max-width: 650px;
-            animation: fadeInUp 1s ease;
+            max-width: 680px;
+            position: relative;
+            z-index: 2;
         }
-
         .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 18px;
+            border-radius: 999px;
+            background: rgba(212,168,83,0.12);
+            border: 1px solid rgba(212,168,83,0.25);
             color: var(--accent-gold);
             font-family: var(--font-heading);
-            font-weight: 700;
+            font-size: 0.78rem;
+            letter-spacing: 0.18em;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            font-size: 0.95rem;
-            display: inline-block;
-            margin-bottom: 15px;
-            border-left: 3px solid var(--accent-gold);
-            padding-left: 10px;
+            margin-bottom: 26px;
+            animation: fadeInDown 0.8s ease both;
         }
-
+        .hero-badge i { font-size: 0.9rem; }
         .hero-content h1 {
             font-family: var(--font-heading);
-            font-size: 4rem;
-            line-height: 1.1;
+            font-size: clamp(3rem, 6vw, 4.8rem);
+            line-height: 1.05;
             font-weight: 800;
-            margin-bottom: 20px;
-            letter-spacing: -1px;
+            margin-bottom: 24px;
+            letter-spacing: -1.5px;
+            animation: fadeInUp 0.9s ease 0.1s both;
         }
-
-        .hero-content h1 span {
-            color: var(--accent-gold);
+        .hero-content h1 .gold-gradient {
+            background: linear-gradient(135deg, #f0c96a 0%, #d4a853 40%, #f5d88a 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
         }
-
         .hero-content p {
             color: var(--text-secondary);
             font-size: 1.15rem;
-            margin-bottom: 35px;
+            line-height: 1.7;
+            margin-bottom: 36px;
+            max-width: 560px;
+            animation: fadeInUp 0.9s ease 0.2s both;
         }
-
         .cta-wrap {
             display: flex;
-            gap: 15px;
+            flex-wrap: wrap;
+            gap: 16px;
+            animation: fadeInUp 0.9s ease 0.3s both;
+        }
+        .cta-wrap .btn {
+            padding: 16px 34px;
+            font-size: 0.95rem;
+            border-radius: 14px;
+        }
+        .cta-wrap .btn-primary {
+            box-shadow: 0 8px 30px rgba(212,168,83,0.35);
+        }
+        .cta-wrap .btn-primary:hover {
+            box-shadow: 0 12px 40px rgba(212,168,83,0.5);
+        }
+        .cta-wrap .btn-secondary {
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(8px);
+        }
+        .hero-stats {
+            display: flex;
+            gap: 40px;
+            margin-top: 48px;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.9s ease 0.4s both;
+        }
+        .hero-stat-item { text-align: left; }
+        .hero-stat-item .stat-value {
+            font-family: var(--font-heading);
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--accent-gold);
+            line-height: 1;
+            display: block;
+        }
+        .hero-stat-item .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 6px;
+            display: block;
+        }
+        .hero-visual {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 45%;
+            max-width: 580px;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .hero-visual .floating-card {
+            position: relative;
+            border-radius: 24px;
+            padding: 30px;
+            background: rgba(26,26,26,0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(212,168,83,0.2);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            animation: floatY 6s ease-in-out infinite;
+        }
+        .hero-visual .floating-card .card-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+        .hero-visual .floating-card .mini-img {
+            width: 70px;
+            height: 70px;
+            border-radius: 16px;
+            object-fit: cover;
+            border: 1px solid rgba(212,168,83,0.3);
+        }
+        .hero-visual .floating-card .mini-title {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        .hero-visual .floating-card .mini-price {
+            color: var(--accent-gold);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .hero-visual .floating-card .mini-desc {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+        .hero-visual .float-badge {
+            position: absolute;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            background: rgba(212,168,83,0.15);
+            border: 1px solid rgba(212,168,83,0.3);
+            color: var(--accent-gold);
+            backdrop-filter: blur(8px);
+            animation: floatBadge 5s ease-in-out infinite;
+        }
+        .hero-visual .float-badge.b1 { top: -14px; right: 20px; }
+        .hero-visual .float-badge.b2 { bottom: 30px; left: -20px; animation-delay: 2s; }
+        @keyframes floatY {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-16px); }
+        }
+        @keyframes floatBadge {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-8px) scale(1.05); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Categories Section */
+        /* ===== TRUST STRIP ===== */
+        .trust-strip {
+            background: rgba(255,255,255,0.02);
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            padding: 22px 0;
+        }
+        .trust-strip-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        .trust-item i {
+            font-size: 1.4rem;
+            color: var(--accent-gold);
+        }
+        .trust-item strong {
+            color: var(--text-primary);
+            display: block;
+            font-size: 0.95rem;
+        }
+
+        /* ===== FEATURES SECTION ===== */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-top: 20px;
+        }
+        .feature-card {
+            padding: 36px 28px;
+            text-align: center;
+            background: linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            transition: var(--transition-smooth);
+        }
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(212,168,83,0.4);
+            box-shadow: 0 20px 44px rgba(0,0,0,0.5), 0 0 24px var(--accent-gold-glow);
+        }
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 20px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-hover));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            box-shadow: 0 8px 24px var(--accent-gold-glow);
+        }
+        .feature-card h3 {
+            font-family: var(--font-heading);
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* ===== IMPROVED CATEGORY CARDS ===== */
         .category-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
+            gap: 22px;
         }
-
         .category-card {
-            height: 350px;
+            height: 380px;
             position: relative;
             overflow: hidden;
-            border-radius: var(--border-radius);
+            border-radius: 20px;
             display: flex;
             align-items: flex-end;
-            padding: 30px;
+            padding: 28px;
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: transform var(--transition-smooth), box-shadow var(--transition-smooth), border-color var(--transition-smooth);
         }
-
         .category-card::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to top, rgba(10, 10, 10, 0.9) 20%, transparent 80%);
+            inset: 0;
+            background: linear-gradient(to top, rgba(10,10,10,0.95) 10%, rgba(10,10,10,0.2) 55%, transparent 100%);
             z-index: 1;
             transition: var(--transition-smooth);
         }
-
         .category-card:hover::before {
-            background: linear-gradient(to top, rgba(212, 168, 83, 0.4) 10%, rgba(10, 10, 10, 0.95) 90%);
+            background: linear-gradient(to top, rgba(10,10,10,0.98) 5%, rgba(212,168,83,0.25) 60%, transparent 100%);
         }
-
+        .category-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(212,168,83,0.5);
+            box-shadow: 0 24px 50px rgba(0,0,0,0.6), 0 0 30px var(--accent-gold-glow);
+        }
         .category-bg {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             object-fit: cover;
-            transition: var(--transition-smooth);
+            transition: transform 0.7s cubic-bezier(0.4,0,0.2,1);
         }
-
         .category-card:hover .category-bg {
-            transform: scale(1.1);
+            transform: scale(1.12);
         }
-
         .category-info {
             position: relative;
             z-index: 2;
-            transition: var(--transition-smooth);
+            transform: translateY(10px);
+            transition: transform var(--transition-smooth);
         }
-
+        .category-card:hover .category-info {
+            transform: translateY(0);
+        }
         .category-title {
             font-family: var(--font-heading);
-            font-size: 1.5rem;
-            font-weight: 700;
+            font-size: 1.55rem;
+            font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
+            color: #fff;
         }
-
         .category-count {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             font-size: 0.85rem;
             color: var(--accent-gold);
             text-transform: uppercase;
             font-weight: 600;
             letter-spacing: 0.5px;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: var(--transition-smooth);
+        }
+        .category-card:hover .category-count {
+            opacity: 1;
+            transform: translateY(0);
         }
 
-        /* Wholesale Banner section */
+        /* ===== WHOLESALE BANNER (Redesigned) ===== */
         .wholesale-promo-banner {
-            background: linear-gradient(135deg, rgba(212, 168, 83, 0.1) 0%, rgba(10, 10, 10, 0.8) 100%), border-box;
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
+            background: linear-gradient(135deg, rgba(212,168,83,0.12) 0%, rgba(10,10,10,0.85) 60%), radial-gradient(circle at 80% 20%, rgba(212,168,83,0.15), transparent 50%);
+            border: 1px solid rgba(212,168,83,0.25);
+            border-radius: 24px;
             padding: 60px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 40px;
             flex-wrap: wrap;
+            position: relative;
+            overflow: hidden;
         }
-
-        .wholesale-promo-text {
-            flex: 1;
-            min-width: 300px;
+        .wholesale-promo-banner::after {
+            content: '"';
+            position: absolute;
+            top: -40px;
+            right: 20px;
+            font-size: 18rem;
+            font-family: var(--font-heading);
+            color: rgba(212,168,83,0.06);
+            line-height: 1;
+            pointer-events: none;
         }
-
+        .wholesale-promo-text { flex: 1; min-width: 300px; position: relative; z-index: 2; }
         .wholesale-promo-text h2 {
             font-family: var(--font-heading);
-            font-size: 2.2rem;
-            font-weight: 700;
+            font-size: 2.4rem;
+            font-weight: 800;
             margin-bottom: 15px;
+            line-height: 1.2;
         }
+        .wholesale-promo-text h2 span { color: var(--accent-gold); }
+        .wholesale-promo-text p { color: var(--text-secondary); margin-bottom: 28px; line-height: 1.7; }
+        .wholesale-icon-feature { display: flex; flex-direction: column; gap: 22px; position: relative; z-index: 2; }
+        .wholesale-feature-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 18px 22px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            transition: var(--transition-smooth);
+        }
+        .wholesale-feature-row:hover {
+            border-color: rgba(212,168,83,0.4);
+            background: rgba(212,168,83,0.06);
+        }
+        .wholesale-feature-row .f-icon {
+            font-size: 1.4rem;
+            color: var(--accent-gold);
+            width: 54px; height: 54px;
+            border-radius: 50%;
+            background: rgba(212,168,83,0.1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .wholesale-feature-row h4 { font-family: var(--font-heading); margin-bottom: 3px; font-size: 1rem; }
+        .wholesale-feature-row p { color: var(--text-secondary); font-size: 0.85rem; margin: 0; }
 
-        .wholesale-promo-text p {
+        /* ===== TESTIMONIALS ===== */
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        .testimonial-card {
+            padding: 32px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            transition: var(--transition-smooth);
+        }
+        .testimonial-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(212,168,83,0.35);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+        }
+        .testimonial-card .stars {
+            color: var(--accent-gold);
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+        }
+        .testimonial-card blockquote {
             color: var(--text-secondary);
-            margin-bottom: 25px;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 20px;
+            font-style: italic;
         }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .testimonial-card .author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
+        .testimonial-card .author .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-gold), #a07830);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: var(--text-dark);
+        }
+        .testimonial-card .author .name { font-weight: 700; font-size: 0.95rem; }
+        .testimonial-card .author .role { color: var(--text-muted); font-size: 0.8rem; }
 
+        /* ===== NEWSLETTER ===== */
+        .newsletter-banner {
+            background: linear-gradient(135deg, rgba(212,168,83,0.15), rgba(10,10,10,0.9)), radial-gradient(circle at 30% 30%, rgba(212,168,83,0.12), transparent 50%);
+            border: 1px solid rgba(212,168,83,0.25);
+            border-radius: 24px;
+            padding: 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .newsletter-banner h2 {
+            font-family: var(--font-heading);
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+        .newsletter-banner p {
+            color: var(--text-secondary);
+            max-width: 520px;
+            margin: 0 auto 30px;
+            line-height: 1.6;
+        }
+        .newsletter-form {
+            display: flex;
+            gap: 12px;
+            max-width: 480px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+        }
+        .newsletter-form input {
+            flex: 1;
+            min-width: 220px;
+            padding: 15px 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: rgba(10,10,10,0.5);
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+            transition: var(--transition-fast);
+        }
+        .newsletter-form input:focus {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 0 4px var(--accent-gold-glow);
+        }
+        .newsletter-form .btn { padding: 15px 28px; }
+
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 992px) {
-            .category-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .hero-content h1 {
-                font-size: 3rem;
-            }
+            .features-grid { grid-template-columns: repeat(2, 1fr); }
+            .testimonial-grid { grid-template-columns: 1fr; }
+            .category-grid { grid-template-columns: repeat(2, 1fr); }
+            .hero-content h1 { font-size: 3rem; }
+            .hero-visual { display: none; }
+            .hero-section { min-height: auto; }
         }
-        
+        @media (max-width: 768px) {
+            .features-grid { grid-template-columns: 1fr; }
+            .trust-item { flex: 1 1 40%; }
+            .hero-content h1 { font-size: 2.5rem; }
+            .hero-stats { gap: 24px; }
+            .wholesale-promo-banner { padding: 36px; }
+            .newsletter-banner { padding: 36px; }
+        }
         @media (max-width: 576px) {
-            .category-grid {
-                grid-template-columns: 1fr;
-            }
-            .wholesale-promo-banner {
-                padding: 30px;
-            }
-            .hero-content h1 {
-                font-size: 2.5rem;
-            }
+            .category-grid { grid-template-columns: 1fr; }
+            .category-card { height: 300px; }
+            .hero-content h1 { font-size: 2.2rem; }
+            .hero-badge { font-size: 0.7rem; }
+            .wholesale-promo-banner { padding: 28px; }
+            .newsletter-banner { padding: 28px; }
+            .newsletter-form { flex-direction: column; }
+            .newsletter-form .btn { width: 100%; }
         }
     </style>
 </head>
@@ -204,25 +577,21 @@
     <header>
         <div class="container nav-container">
             <a href="/" class="logo"><img src="/logoo.png" alt="4D'S World" class="logo-img"></a>
-            
-<nav class="nav-menu" id="nav-menu">
+            <nav class="nav-menu" id="nav-menu">
                 <a href="/" class="nav-link active">Home</a>
                 <a href="/shop" class="nav-link">Shop</a>
                 <a href="/about" class="nav-link">About</a>
                 <a href="/contact" class="nav-link">Contact</a>
             </nav>
-
             <div class="nav-actions">
                 <a href="/cart" class="nav-btn" title="View Cart">
                     <i class="fas fa-shopping-cart"></i>
                     <span class="cart-count" id="cart-count">0</span>
                 </a>
-
                 <div class="menu-toggle" id="menu-toggle">
                     <i class="fas fa-bars"></i>
                 </div>
             </div>
-
         </div>
     </header>
 
@@ -230,57 +599,125 @@
     <section class="hero-section">
         <div class="container">
             <div class="hero-content">
-                <span class="hero-badge">Direct From Manufacturer</span>
-                <h1>Exquisite Fashion, <span>Without Limits</span></h1>
+                <span class="hero-badge"><i class="fas fa-gem"></i> Direct From Manufacturer</span>
+                <h1>Exquisite Fashion, <span class="gold-gradient">Without Limits</span></h1>
                 <p>Explore Nigeria's top collection of luxury clothes, shoes, bags, and accessories. Tailored for individuals (retail) and commercial dealers (wholesale) seeking premium quality.</p>
                 <div class="cta-wrap">
-                    <a href="shop.html" class="btn btn-primary">Shop Catalog <i class="fas fa-arrow-right"></i></a>
-                    <a href="shop.html?mode=wholesale" class="btn btn-secondary">Wholesale Deals</a>
+                    <a href="/shop" class="btn btn-primary"><i class="fas fa-shopping-bag"></i> Shop Catalog <i class="fas fa-arrow-right"></i></a>
+                    <a href="/shop?mode=wholesale" class="btn btn-secondary"><i class="fas fa-tags"></i> Wholesale Deals</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="hero-stat-item">
+                        <span class="stat-value">500+</span>
+                        <span class="stat-label">Happy Customers</span>
+                    </div>
+                    <div class="hero-stat-item">
+                        <span class="stat-value">20K+</span>
+                        <span class="stat-label">Orders Shipped</span>
+                    </div>
+                    <div class="hero-stat-item">
+                        <span class="stat-value">100%</span>
+                        <span class="stat-label">Premium Quality</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="floating-card">
+                    <div class="card-row">
+                        <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=300&auto=format&fit=crop&q=60" alt="Luxury Sneaker" class="mini-img">
+                        <div>
+                            <div class="mini-title">Signature Sneakers</div>
+                            <div class="mini-desc">Premium leather &amp; comfort</div>
+                            <div class="mini-price">₦45,000</div>
+                        </div>
+                    </div>
+                    <div class="card-row">
+                        <img src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=300&auto=format&fit=crop&q=60" alt="Luxury Handbag" class="mini-img">
+                        <div>
+                            <div class="mini-title">Designer Handbag</div>
+                            <div class="mini-desc">Genuine leather, handcrafted</div>
+                            <div class="mini-price">₦85,000</div>
+                        </div>
+                    </div>
+                    <div class="float-badge b1"><i class="fas fa-truck"></i> Nationwide Delivery</div>
+                    <div class="float-badge b2"><i class="fas fa-shield-alt"></i> 100% Authentic</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trust Strip -->
+    <section class="trust-strip">
+        <div class="container trust-strip-inner">
+            <div class="trust-item"><i class="fas fa-truck-fast"></i> <div><strong>Fast Delivery</strong> Nationwide</div></div>
+            <div class="trust-item"><i class="fas fa-shield-halved"></i> <div><strong>Secure Payment</strong> Via Paystack</div></div>
+            <div class="trust-item"><i class="fas fa-gem"></i> <div><strong>100% Authentic</strong> Premium Quality</div></div>
+            <div class="trust-item"><i class="fas fa-headset"></i> <div><strong>24/7 Support</strong> WhatsApp &amp; Call</div></div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Why Choose 4D'S World</h2>
+            <p class="section-subtitle">The premium fashion destination trusted by retailers and fashion lovers across Nigeria.</p>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-tags"></i></div>
+                    <h3>Wholesale Pricing</h3>
+                    <p>Direct factory prices with low minimum orders. Perfect for retailers stocking premium inventory.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-gem"></i></div>
+                    <h3>Premium Quality</h3>
+                    <p>Hand-selected luxury fabrics, genuine leather, and materials that deliver lasting satisfaction.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-truck-fast"></i></div>
+                    <h3>Speedy Delivery</h3>
+                    <p>Fast freight delivery to Lagos, Abuja, Port Harcourt, and every state across Nigeria.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-headset"></i></div>
+                    <h3>Dedicated Support</h3>
+                    <p>Responsive customer care via WhatsApp, phone, and email to assist you every step.</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Categories Section -->
-    <section class="section">
+    <section class="section" style="background: var(--bg-secondary); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
         <div class="container">
             <h2 class="section-title">Shop by Category</h2>
             <p class="section-subtitle">Pick from our premium selections crafted with luxury fabrics and materials.</p>
-            
             <div class="category-grid">
-                <!-- Category 1 -->
-                <a href="shop.html?category=clothes" class="category-card">
-                    <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=500&auto=format&fit=crop&q=60" alt="Clothes" class="category-bg">
+                <a href="/shop?category=clothes" class="category-card">
+                    <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&auto=format&fit=crop&q=60" alt="Clothes" class="category-bg">
                     <div class="category-info">
                         <h3 class="category-title">Clothes</h3>
-                        <span class="category-count">Explore Items</span>
+                        <span class="category-count">Explore Items <i class="fas fa-arrow-right"></i></span>
                     </div>
                 </a>
-
-                <!-- Category 2 -->
-                <a href="shop.html?category=shoes" class="category-card">
-                    <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=500&auto=format&fit=crop&q=60" alt="Shoes" class="category-bg">
+                <a href="/shop?category=shoes" class="category-card">
+                    <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600&auto=format&fit=crop&q=60" alt="Shoes" class="category-bg">
                     <div class="category-info">
                         <h3 class="category-title">Shoes</h3>
-                        <span class="category-count">Explore Items</span>
+                        <span class="category-count">Explore Items <i class="fas fa-arrow-right"></i></span>
                     </div>
                 </a>
-
-                <!-- Category 3 -->
-                <a href="shop.html?category=bags" class="category-card">
-                    <img src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=500&auto=format&fit=crop&q=60" alt="Bags" class="category-bg">
+                <a href="/shop?category=bags" class="category-card">
+                    <img src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=600&auto=format&fit=crop&q=60" alt="Bags" class="category-bg">
                     <div class="category-info">
                         <h3 class="category-title">Bags</h3>
-                        <span class="category-count">Explore Items</span>
+                        <span class="category-count">Explore Items <i class="fas fa-arrow-right"></i></span>
                     </div>
                 </a>
-
-                <!-- Category 4 -->
-                <a href="shop.html?category=accessories" class="category-card">
-                    <img src="https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?w=500&auto=format&fit=crop&q=60" alt="Accessories" class="category-bg">
+                <a href="/shop?category=accessories" class="category-card">
+                    <img src="https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?w=600&auto=format&fit=crop&q=60" alt="Accessories" class="category-bg">
                     <div class="category-info">
                         <h3 class="category-title">Accessories</h3>
-                        <span class="category-count">Explore Items</span>
+                        <span class="category-count">Explore Items <i class="fas fa-arrow-right"></i></span>
                     </div>
                 </a>
             </div>
@@ -288,27 +725,34 @@
     </section>
 
     <!-- Wholesale Promotional section -->
-    <section class="section" style="background: var(--bg-secondary); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+    <section class="section">
         <div class="container">
             <div class="wholesale-promo-banner glass-panel">
                 <div class="wholesale-promo-text">
-                    <h2>Wholesale & Bulk Supplies</h2>
+                    <h2>Wholesale & <span>Bulk Supplies</span></h2>
                     <p>Are you a retailer looking to stock your store with high-margin luxury items? 4D'S World offers direct factory prices on bags, shoes, and clothing. Unlock specialized discount pricing with low minimum orders and speedy countrywide delivery across Nigeria.</p>
-                    <a href="contact.html" class="btn btn-primary"><i class="fab fa-whatsapp"></i> Chat Wholesale Agent</a>
+                    <a href="/contact" class="btn btn-primary"><i class="fab fa-whatsapp"></i> Chat Wholesale Agent</a>
                 </div>
-                <div class="wholesale-icon-feature" style="display: flex; flex-direction: column; gap: 20px;">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <span style="font-size: 1.8rem; color: var(--accent-gold); width: 50px; height: 50px; border-radius: 50%; background: rgba(212,168,83,0.1); display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-tags"></i></span>
+                <div class="wholesale-icon-feature">
+                    <div class="wholesale-feature-row">
+                        <span class="f-icon"><i class="fas fa-tags"></i></span>
                         <div>
-                            <h4 style="font-family: var(--font-heading); margin-bottom: 2px;">Low Minimums</h4>
-                            <p style="color: var(--text-secondary); font-size: 0.85rem;">Wholesale starts from just 3-10 pieces per product.</p>
+                            <h4>Low Minimums</h4>
+                            <p>Wholesale starts from just 3-10 pieces per product.</p>
                         </div>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <span style="font-size: 1.8rem; color: var(--accent-gold); width: 50px; height: 50px; border-radius: 50%; background: rgba(212,168,83,0.1); display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-shipping-fast"></i></span>
+                    <div class="wholesale-feature-row">
+                        <span class="f-icon"><i class="fas fa-shipping-fast"></i></span>
                         <div>
-                            <h4 style="font-family: var(--font-heading); margin-bottom: 2px;">Natiowide Shipping</h4>
-                            <p style="color: var(--text-secondary); font-size: 0.85rem;">Fast freight delivery to Lagos, Abuja, Port Harcourt & others.</p>
+                            <h4>Nationwide Shipping</h4>
+                            <p>Fast freight delivery to Lagos, Abuja, PH &amp; others.</p>
+                        </div>
+                    </div>
+                    <div class="wholesale-feature-row">
+                        <span class="f-icon"><i class="fas fa-percent"></i></span>
+                        <div>
+                            <h4>Special Discounts</h4>
+                            <p>Unlock bulk pricing tiers for serious dealers.</p>
                         </div>
                     </div>
                 </div>
@@ -317,17 +761,63 @@
     </section>
 
     <!-- Featured Products Section -->
-    <section class="section">
+    <section class="section" style="background: var(--bg-secondary); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
         <div class="container">
             <h2 class="section-title">Trending Catalog</h2>
             <p class="section-subtitle">A collection of our highest rated, signature releases in the collection.</p>
-            
             <div class="product-grid" id="homepage-featured-grid">
                 <!-- Dynamically populated via JS -->
             </div>
-            
             <div style="text-align: center; margin-top: 50px;">
-                <a href="shop.html" class="btn btn-secondary">Explore Entire Shop <i class="fas fa-arrow-right"></i></a>
+                <a href="/shop" class="btn btn-secondary">Explore Entire Shop <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">What Our Customers Say</h2>
+            <p class="section-subtitle">Trusted by fashion lovers and retailers across Nigeria.</p>
+            <div class="testimonial-grid">
+                <div class="testimonial-card">
+                    <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <blockquote>"The quality is unmatched! I've been buying wholesale from 4D'S World for months and my customers love the products. Highly recommended."</blockquote>
+                    <div class="author">
+                        <div class="avatar">AM</div>
+                        <div><div class="name">Amina Mohammed</div><div class="role">Retail Store Owner, Kano</div></div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <blockquote>"Fast delivery and genuine products. The sneakers and bags I ordered exceeded my expectations. Definitely my go-to fashion store."</blockquote>
+                    <div class="author">
+                        <div class="avatar">JO</div>
+                        <div><div class="name">John Obi</div><div class="role">Fashion Enthusiast, Lagos</div></div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <blockquote>"Excellent customer service and premium quality. The wholesale pricing is unbeatable. My boutique has grown so much since I started with them."</blockquote>
+                    <div class="author">
+                        <div class="avatar">CN</div>
+                        <div><div class="name">Chidinma Nwosu</div><div class="role">Boutique Owner, Abuja</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="section">
+        <div class="container">
+            <div class="newsletter-banner">
+                <h2>Stay in the Loop</h2>
+                <p>Subscribe to get exclusive deals, new arrivals, and fashion tips delivered straight to your inbox.</p>
+                <form class="newsletter-form" id="newsletter-form">
+                    <input type="email" placeholder="Enter your email address" required>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Subscribe</button>
+                </form>
             </div>
         </div>
     </section>
@@ -344,42 +834,37 @@
                     <a href="mailto:destinydomi@gmail.com" class="social-btn" title="Email Us"><i class="fas fa-envelope"></i></a>
                 </div>
             </div>
-            
             <div>
                 <h3 class="footer-title">Boutique</h3>
                 <ul class="footer-links">
-                    <li><a href="shop.html?category=clothes">Clothes Collection</a></li>
-                    <li><a href="shop.html?category=shoes">Shoes & Heels</a></li>
-                    <li><a href="shop.html?category=bags">Luxury Handbags</a></li>
-                    <li><a href="shop.html?category=accessories">Gold Jewelry & Watches</a></li>
+                    <li><a href="/shop?category=clothes">Clothes Collection</a></li>
+                    <li><a href="/shop?category=shoes">Shoes & Heels</a></li>
+                    <li><a href="/shop?category=bags">Luxury Handbags</a></li>
+                    <li><a href="/shop?category=accessories">Gold Jewelry & Watches</a></li>
                 </ul>
             </div>
-
             <div>
                 <h3 class="footer-title">About</h3>
                 <ul class="footer-links">
-                    <li><a href="about.html">Our Story</a></li>
-                    <li><a href="about.html#wholesale-info">Bulk Purchases</a></li>
-                    <li><a href="contact.html">Store Location</a></li>
-                    <li><a href="contact.html">Support Line</a></li>
+                    <li><a href="/about">Our Story</a></li>
+                    <li><a href="/about#wholesale-info">Bulk Purchases</a></li>
+                    <li><a href="/contact">Store Location</a></li>
+                    <li><a href="/contact">Support Line</a></li>
                 </ul>
             </div>
-
             <div>
                 <h3 class="footer-title">Quick Support</h3>
                 <ul class="footer-contact">
                     <li><i class="fas fa-map-marker-alt"></i> <span>411 Road, Gowon Estate, Egbeda, Lagos</span></li>
                     <li><i class="fas fa-phone"></i> <span>08160458303</span></li>
-                    <li><i class="fab fa-whatsapp"></i> <span><a href="https://wa.me/2348160458303" style="color:inherit;text-decoration:none;">08160458303 (WhatsApp)</a></span></li>
+                    <li><i class="fab fa-whatsapp"></i> <span><a href="https://wa.me/2348160458303" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">08160458303 (WhatsApp)</a></span></li>
                     <li><i class="fas fa-envelope"></i> <span><a href="mailto:destinydomi@gmail.com" style="color:inherit;text-decoration:none;">destinydomi@gmail.com</a></span></li>
                 </ul>
             </div>
         </div>
-
         <div class="container footer-bottom">
             <p>&copy; 2026 4D'S World. All Rights Reserved. | Made with <span style="color:#e74c3c;">&#10084;</span> by <a href="https://bit.ly/HiveryTech" target="_blank" rel="noopener" style="color:var(--accent-gold);text-decoration:none;font-weight:600;">HiveryTech LTD</a></p>
             <div class="payment-providers">
-                <!-- Display logos or text indicating Paystack -->
                 <span style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-right: 8px;">Secured by</span>
                 <i class="fab fa-cc-visa" title="Visa" style="color: #1a1f71;"></i>
                 <i class="fab fa-cc-mastercard" title="Mastercard" style="color: #eb001b;"></i>
@@ -450,7 +935,18 @@
             const defaultColor = product.colors ? product.colors[0] : '';
             CartManager.addItem(id, 1, defaultSize, defaultColor);
         }
+
+        // Newsletter form handler
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('newsletter-form');
+            if (form) {
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    showToast('Subscribed! Welcome to the 4D\'S World family.', 'success');
+                    form.reset();
+                });
+            }
+        });
     </script>
 </body>
 </html>
-
