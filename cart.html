@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart | 4D'S World | Clothes, Shoes, Bags & Accessories</title>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        .cart-page-wrap {
+            padding-top: calc(var(--nav-height) + 40px);
+            padding-bottom: 80px;
+        }
+
+        .cart-grid {
+            display: grid;
+            grid-template-columns: 1.8fr 1fr;
+            gap: 40px;
+            align-items: flex-start;
+        }
+
+        .cart-items-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 15px;
+        }
+
+        .cart-items-header h1 {
+            font-family: var(--font-heading);
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        /* Cart summary card styles */
+        .cart-summary-card {
+            padding: 30px;
+            position: sticky;
+            top: calc(var(--nav-height) + 20px);
+        }
+
+        .summary-title {
+            font-family: var(--font-heading);
+            font-size: 1.3rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 15px;
+            color: var(--accent-gold);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .summary-row.total {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 20px;
+            margin-top: 20px;
+            font-size: 1.25rem;
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .wholesale-info-panel {
+            background: rgba(46, 196, 182, 0.03);
+            border: 1px solid rgba(46, 196, 182, 0.2);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+            font-size: 0.85rem;
+            color: var(--success);
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header / Navigation -->
+    <header>
+        <div class="container nav-container">
+            <a href="index.html" class="logo">4D'S <span>WORLD</span></a>
+            
+            <nav class="nav-menu" id="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="shop.html" class="nav-link">Shop</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="contact.html" class="nav-link">Contact</a>
+            </nav>
+
+            <div class="nav-actions">
+                <button class="mode-toggle" id="pricing-mode-toggle" title="Toggle Retail / Wholesale prices">
+                    <i class="fas fa-shopping-bag"></i> <span>Retail</span>
+                </button>
+
+                <a href="cart.html" class="nav-btn" title="View Cart">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cart-count">0</span>
+                </a>
+
+                <div class="menu-toggle" id="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Cart Main Wrap -->
+    <section class="cart-page-wrap">
+        <div class="container">
+            <div class="cart-grid">
+                
+                <!-- Left Column: Cart items lists -->
+                <div class="cart-left-col">
+                    <div class="cart-items-header">
+                        <h1>Shopping Cart</h1>
+                        <button class="btn btn-secondary" id="btn-clear-cart" style="padding: 8px 16px; font-size: 0.8rem;"><i class="fas fa-trash-alt"></i> Clear Cart</button>
+                    </div>
+
+                    <!-- Items container (Populated dynamically) -->
+                    <div id="cart-items-container">
+                        <!-- Loaded dynamically -->
+                    </div>
+                </div>
+
+                <!-- Right Column: Cart summary sidebar -->
+                <aside class="cart-summary-col">
+                    <div class="cart-summary-card glass-panel">
+                        <h2 class="summary-title">Order Summary</h2>
+
+                        <!-- Wholesale notice panel -->
+                        <div class="wholesale-info-panel">
+                            <i class="fas fa-info-circle" style="margin-right: 6px;"></i> Wholesale pricing will apply dynamically to any item when its quantity reaches its wholesale threshold, even if browsing in Retail mode.
+                        </div>
+
+                        <!-- Price summary lines -->
+                        <div class="summary-row">
+                            <span>Subtotal</span>
+                            <span id="cart-subtotal">₦0</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Estimated Delivery</span>
+                            <span id="cart-delivery">₦2,500</span>
+                        </div>
+                        
+                        <div class="summary-row total">
+                            <span>Total</span>
+                            <span id="cart-total" style="color: var(--accent-gold);">₦0</span>
+                        </div>
+
+                        <div style="margin-top: 30px;">
+                            <button class="btn btn-primary" id="btn-proceed-checkout" style="width: 100%;"><i class="fas fa-credit-card"></i> Proceed To Checkout</button>
+                            <a href="shop.html" class="btn btn-secondary" style="width: 100%; margin-top: 12px;"><i class="fas fa-arrow-left"></i> Continue Shopping</a>
+                        </div>
+                    </div>
+                </aside>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <a href="index.html" class="logo">4D'S <span>WORLD</span></a>
+                <p>Nigeria's premium fashion distributor and dealer, supplying bags, accessories, shoes, and clothing to bulk wholesalers and retail buyers.</p>
+                <div class="social-links">
+                    <a href="https://www.facebook.com/search/top?q=tessy%20collections" target="_blank" rel="noopener" class="social-btn" title="Tessy Collections on Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://wa.me/2348160458303" target="_blank" rel="noopener" class="social-btn" title="WhatsApp Us"><i class="fab fa-whatsapp"></i></a>
+                    <a href="mailto:destinydomi@gmail.com" class="social-btn" title="Email Us"><i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
+            
+            <div>
+                <h3 class="footer-title">Boutique</h3>
+                <ul class="footer-links">
+                    <li><a href="shop.html?category=clothes">Clothes Collection</a></li>
+                    <li><a href="shop.html?category=shoes">Shoes & Heels</a></li>
+                    <li><a href="shop.html?category=bags">Luxury Handbags</a></li>
+                    <li><a href="shop.html?category=accessories">Gold Jewelry & Watches</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 class="footer-title">About</h3>
+                <ul class="footer-links">
+                    <li><a href="about.html">Our Story</a></li>
+                    <li><a href="about.html#wholesale-info">Bulk Purchases</a></li>
+                    <li><a href="contact.html">Store Location</a></li>
+                    <li><a href="contact.html">Support Line</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 class="footer-title">Quick Support</h3>
+                <ul class="footer-contact">
+                    <li><i class="fas fa-map-marker-alt"></i> <span>411 Road, Gowon Estate, Egbeda, Lagos</span></li>
+                    <li><i class="fas fa-phone"></i> <span>08160458303</span></li>
+                    <li><i class="fab fa-whatsapp"></i> <span><a href="https://wa.me/2348160458303" style="color:inherit;text-decoration:none;">08160458303 (WhatsApp)</a></span></li>
+                    <li><i class="fas fa-envelope"></i> <span><a href="mailto:destinydomi@gmail.com" style="color:inherit;text-decoration:none;">destinydomi@gmail.com</a></span></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="container footer-bottom">
+            <p>&copy; 2026 4D'S World. All Rights Reserved. | Made with <span style="color:#e74c3c;">&#10084;</span> by <a href="https://bit.ly/HiveryTech" target="_blank" rel="noopener" style="color:var(--accent-gold);text-decoration:none;font-weight:600;">HiveryTech LTD</a></p>
+            <div class="payment-providers">
+                <span style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-right: 8px;">Secured by</span>
+                <i class="fab fa-cc-visa" title="Visa" style="color: #1a1f71;"></i>
+                <i class="fab fa-cc-mastercard" title="Mastercard" style="color: #eb001b;"></i>
+                <span style="font-size: 0.9rem; font-weight: 700; color: #fff; background: #3ec1b7; padding: 2px 6px; border-radius: 4px; font-family: sans-serif;">paystack</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- App Scripts -->
+    <script src="js/products.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/cart.js"></script>
+</body>
+</html>

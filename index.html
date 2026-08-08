@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4D'S World | Premium Clothes, Shoes, Bags & Accessories in Nigeria</title>
+    <meta name="description" content="Welcome to 4D'S World - Nigeria's premier retail and wholesale supplier of clothes, shoes, luxury bags, and accessories. Buy in bulk and save big.">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        /* Homepage Specific Hero Styles */
+        .hero-section {
+            height: 90vh;
+            background: linear-gradient(135deg, rgba(10, 10, 10, 0.95), rgba(30, 20, 5, 0.85)), url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1600&auto=format&fit=crop&q=80') no-repeat center center/cover;
+            display: flex;
+            align-items: center;
+            position: relative;
+            padding-top: var(--nav-height);
+        }
+
+        .hero-content {
+            max-width: 650px;
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero-badge {
+            color: var(--accent-gold);
+            font-family: var(--font-heading);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.95rem;
+            display: inline-block;
+            margin-bottom: 15px;
+            border-left: 3px solid var(--accent-gold);
+            padding-left: 10px;
+        }
+
+        .hero-content h1 {
+            font-family: var(--font-heading);
+            font-size: 4rem;
+            line-height: 1.1;
+            font-weight: 800;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+
+        .hero-content h1 span {
+            color: var(--accent-gold);
+        }
+
+        .hero-content p {
+            color: var(--text-secondary);
+            font-size: 1.15rem;
+            margin-bottom: 35px;
+        }
+
+        .cta-wrap {
+            display: flex;
+            gap: 15px;
+        }
+
+        /* Categories Section */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .category-card {
+            height: 350px;
+            position: relative;
+            overflow: hidden;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: flex-end;
+            padding: 30px;
+        }
+
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(10, 10, 10, 0.9) 20%, transparent 80%);
+            z-index: 1;
+            transition: var(--transition-smooth);
+        }
+
+        .category-card:hover::before {
+            background: linear-gradient(to top, rgba(212, 168, 83, 0.4) 10%, rgba(10, 10, 10, 0.95) 90%);
+        }
+
+        .category-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition-smooth);
+        }
+
+        .category-card:hover .category-bg {
+            transform: scale(1.1);
+        }
+
+        .category-info {
+            position: relative;
+            z-index: 2;
+            transition: var(--transition-smooth);
+        }
+
+        .category-title {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        .category-count {
+            font-size: 0.85rem;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        /* Wholesale Banner section */
+        .wholesale-promo-banner {
+            background: linear-gradient(135deg, rgba(212, 168, 83, 0.1) 0%, rgba(10, 10, 10, 0.8) 100%), border-box;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .wholesale-promo-text {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .wholesale-promo-text h2 {
+            font-family: var(--font-heading);
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .wholesale-promo-text p {
+            color: var(--text-secondary);
+            margin-bottom: 25px;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 992px) {
+            .category-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .hero-content h1 {
+                font-size: 3rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .category-grid {
+                grid-template-columns: 1fr;
+            }
+            .wholesale-promo-banner {
+                padding: 30px;
+            }
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header / Navigation -->
+    <header>
+        <div class="container nav-container">
+            <a href="index.html" class="logo">4D'S <span>WORLD</span></a>
+            
+            <nav class="nav-menu" id="nav-menu">
+                <a href="index.html" class="nav-link active">Home</a>
+                <a href="shop.html" class="nav-link">Shop</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="contact.html" class="nav-link">Contact</a>
+            </nav>
+
+            <div class="nav-actions">
+                <!-- Pricing mode switcher -->
+                <button class="mode-toggle" id="pricing-mode-toggle" title="Toggle Retail / Wholesale prices">
+                    <i class="fas fa-shopping-bag"></i> <span>Retail</span>
+                </button>
+
+                <a href="cart.html" class="nav-btn" title="View Cart">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cart-count">0</span>
+                </a>
+
+                <div class="menu-toggle" id="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-content">
+                <span class="hero-badge">Direct From Manufacturer</span>
+                <h1>Exquisite Fashion, <span>Without Limits</span></h1>
+                <p>Explore Nigeria's top collection of luxury clothes, shoes, bags, and accessories. Tailored for individuals (retail) and commercial dealers (wholesale) seeking premium quality.</p>
+                <div class="cta-wrap">
+                    <a href="shop.html" class="btn btn-primary">Shop Catalog <i class="fas fa-arrow-right"></i></a>
+                    <a href="shop.html?mode=wholesale" class="btn btn-secondary">Wholesale Deals</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Shop by Category</h2>
+            <p class="section-subtitle">Pick from our premium selections crafted with luxury fabrics and materials.</p>
+            
+            <div class="category-grid">
+                <!-- Category 1 -->
+                <a href="shop.html?category=clothes" class="category-card">
+                    <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=500&auto=format&fit=crop&q=60" alt="Clothes" class="category-bg">
+                    <div class="category-info">
+                        <h3 class="category-title">Clothes</h3>
+                        <span class="category-count">Explore Items</span>
+                    </div>
+                </a>
+
+                <!-- Category 2 -->
+                <a href="shop.html?category=shoes" class="category-card">
+                    <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=500&auto=format&fit=crop&q=60" alt="Shoes" class="category-bg">
+                    <div class="category-info">
+                        <h3 class="category-title">Shoes</h3>
+                        <span class="category-count">Explore Items</span>
+                    </div>
+                </a>
+
+                <!-- Category 3 -->
+                <a href="shop.html?category=bags" class="category-card">
+                    <img src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=500&auto=format&fit=crop&q=60" alt="Bags" class="category-bg">
+                    <div class="category-info">
+                        <h3 class="category-title">Bags</h3>
+                        <span class="category-count">Explore Items</span>
+                    </div>
+                </a>
+
+                <!-- Category 4 -->
+                <a href="shop.html?category=accessories" class="category-card">
+                    <img src="https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?w=500&auto=format&fit=crop&q=60" alt="Accessories" class="category-bg">
+                    <div class="category-info">
+                        <h3 class="category-title">Accessories</h3>
+                        <span class="category-count">Explore Items</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Wholesale Promotional section -->
+    <section class="section" style="background: var(--bg-secondary); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+        <div class="container">
+            <div class="wholesale-promo-banner glass-panel">
+                <div class="wholesale-promo-text">
+                    <h2>Wholesale & Bulk Supplies</h2>
+                    <p>Are you a retailer looking to stock your store with high-margin luxury items? 4D'S World offers direct factory prices on bags, shoes, and clothing. Unlock specialized discount pricing with low minimum orders and speedy countrywide delivery across Nigeria.</p>
+                    <a href="contact.html" class="btn btn-primary"><i class="fab fa-whatsapp"></i> Chat Wholesale Agent</a>
+                </div>
+                <div class="wholesale-icon-feature" style="display: flex; flex-direction: column; gap: 20px;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <span style="font-size: 1.8rem; color: var(--accent-gold); width: 50px; height: 50px; border-radius: 50%; background: rgba(212,168,83,0.1); display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-tags"></i></span>
+                        <div>
+                            <h4 style="font-family: var(--font-heading); margin-bottom: 2px;">Low Minimums</h4>
+                            <p style="color: var(--text-secondary); font-size: 0.85rem;">Wholesale starts from just 3-10 pieces per product.</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <span style="font-size: 1.8rem; color: var(--accent-gold); width: 50px; height: 50px; border-radius: 50%; background: rgba(212,168,83,0.1); display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-shipping-fast"></i></span>
+                        <div>
+                            <h4 style="font-family: var(--font-heading); margin-bottom: 2px;">Natiowide Shipping</h4>
+                            <p style="color: var(--text-secondary); font-size: 0.85rem;">Fast freight delivery to Lagos, Abuja, Port Harcourt & others.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Products Section -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Trending Catalog</h2>
+            <p class="section-subtitle">A collection of our highest rated, signature releases in the collection.</p>
+            
+            <div class="product-grid" id="homepage-featured-grid">
+                <!-- Dynamically populated via JS -->
+            </div>
+            
+            <div style="text-align: center; margin-top: 50px;">
+                <a href="shop.html" class="btn btn-secondary">Explore Entire Shop <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <a href="index.html" class="logo">4D'S <span>WORLD</span></a>
+                <p>Nigeria's premium fashion distributor and dealer, supplying bags, accessories, shoes, and clothing to bulk wholesalers and retail buyers.</p>
+                <div class="social-links">
+                    <a href="https://www.facebook.com/search/top?q=tessy%20collections" target="_blank" rel="noopener" class="social-btn" title="Tessy Collections on Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://wa.me/2348160458303" target="_blank" rel="noopener" class="social-btn" title="WhatsApp Us"><i class="fab fa-whatsapp"></i></a>
+                    <a href="mailto:destinydomi@gmail.com" class="social-btn" title="Email Us"><i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
+            
+            <div>
+                <h3 class="footer-title">Boutique</h3>
+                <ul class="footer-links">
+                    <li><a href="shop.html?category=clothes">Clothes Collection</a></li>
+                    <li><a href="shop.html?category=shoes">Shoes & Heels</a></li>
+                    <li><a href="shop.html?category=bags">Luxury Handbags</a></li>
+                    <li><a href="shop.html?category=accessories">Gold Jewelry & Watches</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 class="footer-title">About</h3>
+                <ul class="footer-links">
+                    <li><a href="about.html">Our Story</a></li>
+                    <li><a href="about.html#wholesale-info">Bulk Purchases</a></li>
+                    <li><a href="contact.html">Store Location</a></li>
+                    <li><a href="contact.html">Support Line</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 class="footer-title">Quick Support</h3>
+                <ul class="footer-contact">
+                    <li><i class="fas fa-map-marker-alt"></i> <span>411 Road, Gowon Estate, Egbeda, Lagos</span></li>
+                    <li><i class="fas fa-phone"></i> <span>08160458303</span></li>
+                    <li><i class="fab fa-whatsapp"></i> <span><a href="https://wa.me/2348160458303" style="color:inherit;text-decoration:none;">08160458303 (WhatsApp)</a></span></li>
+                    <li><i class="fas fa-envelope"></i> <span><a href="mailto:destinydomi@gmail.com" style="color:inherit;text-decoration:none;">destinydomi@gmail.com</a></span></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="container footer-bottom">
+            <p>&copy; 2026 4D'S World. All Rights Reserved. | Made with <span style="color:#e74c3c;">&#10084;</span> by <a href="https://bit.ly/HiveryTech" target="_blank" rel="noopener" style="color:var(--accent-gold);text-decoration:none;font-weight:600;">HiveryTech LTD</a></p>
+            <div class="payment-providers">
+                <!-- Display logos or text indicating Paystack -->
+                <span style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-right: 8px;">Secured by</span>
+                <i class="fab fa-cc-visa" title="Visa" style="color: #1a1f71;"></i>
+                <i class="fab fa-cc-mastercard" title="Mastercard" style="color: #eb001b;"></i>
+                <span style="font-size: 0.9rem; font-weight: 700; color: #fff; background: #3ec1b7; padding: 2px 6px; border-radius: 4px; font-family: sans-serif;">paystack</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- App Scripts -->
+    <script src="js/products.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // Homepage specific slider/rendering script
+        document.addEventListener('DOMContentLoaded', () => {
+            renderHomepageProducts();
+            
+            // Re-render when global retail/wholesale mode changes
+            window.addEventListener('pricingModeChanged', renderHomepageProducts);
+        });
+
+        function renderHomepageProducts() {
+            const grid = document.getElementById('homepage-featured-grid');
+            if (!grid) return;
+
+            const mode = getPricingMode();
+            
+            // Grab 8 featured products
+            const featured = products.slice(0, 8);
+            
+            grid.innerHTML = featured.map(p => {
+                const isWholesale = mode === 'wholesale';
+                const activePrice = isWholesale ? p.wholesalePrice : p.price;
+                const badgeHTML = p.badge ? `<div class="product-badge">${p.badge}</div>` : '';
+                
+                return `
+                    <div class="product-card glass-panel">
+                        <div class="product-image-wrap">
+                            ${badgeHTML}
+                            <img src="${p.image}" alt="${p.name}" class="product-img" loading="lazy">
+                            <div class="product-actions-overlay">
+                                <button class="action-btn" onclick="quickView('${p.id}')" title="Quick View">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="action-btn" onclick="addToCartDirect('${p.id}')" title="Add to Cart">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <span class="product-category">${p.category}</span>
+                            <h3 class="product-title"><a href="product.html?id=${p.id}">${p.name}</a></h3>
+                            <div class="product-rating">
+                                <i class="fas fa-star"></i>
+                                <span>${p.rating}</span>
+                            </div>
+                            <div class="product-price-wrap">
+                                <span class="product-price">${formatNaira(activePrice)}</span>
+                                <span class="wholesale-badge-info">
+                                    ${isWholesale ? `Wholesale (Min ${p.wholesaleMinQty} pcs)` : `Wholesale: ${formatNaira(p.wholesalePrice)} (Buy ${p.wholesaleMinQty}+)`}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>
